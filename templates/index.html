@@ -1,0 +1,65 @@
+{% extends "layout.html" %}
+
+{% block head_content %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bills.css') }}">
+{% endblock %}
+
+{% block main_content %}
+    <h1>Contas recentes</h1>
+    {% if bill_data %}
+        <table class="table">
+            <colgroup>
+                <col style="width: 20%">
+                <col style="width: 20%">
+                <col style="width: 20%">
+                <col style="width: 20%">
+                <col style="width: 20%">
+            </colgroup>
+            
+            <thead>
+                <th class="table__cell table__cell--header">Nome da Conta</th>
+                <th class="table__cell table__cell--header">Valor</th>
+                <th class="table__cell table__cell--header">Data de vencimento</th>
+                <th class="table__cell table__cell--header">Descrição</th>
+                <th class="table__cell table__cell--header"></th>
+            </thead>
+            <tbody>
+                {% for bill in bill_data %}
+                    <tr>
+                        <td class="table__cell">
+                            <p class="table__element">{{ bill.billName }}</p>
+                        </td>
+                        <td class="table__cell">
+                            <p class="table__element">{{ bill.billValue }}</p>
+                        </td>
+                        <td class="table__cell">
+                            <p class="table__element">{{ bill.expireDate }}</p>
+                        </td>
+                        <td class="table__cell">
+                            <p class="table__element">{{ bill.description }}</p>
+                        </td>
+                        <td class="table__cell">
+                            <a href="{{ url_for('bill', _id=bill._id) }}" class="table__link">Detalhes</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="table__empty">Não há contas recentes a exibir, <a class="table__link" href="{{ url_for('add_bill') }}" >adicione uma nova conta</a> para poder visualizá-la</p>
+    {% endif %}
+    <a
+        href="{{ url_for('add_bill') }}" 
+        class="nav__link"
+    >
+        <span class="nav__item">Adicionar nova conta</span>
+    </a>
+    <a
+        href="{{ url_for('bills_to_pay') }}" 
+        class="nav__link"
+    >
+        <span class="nav__item">Todas as contas</span>
+    </a>
+
+{% endblock %}
+

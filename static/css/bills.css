@@ -1,0 +1,38 @@
+.table {
+    max-width: 50rem;
+    width: 100%;
+    margin: 0 auto;
+    border-spacing: 0;
+}
+
+.table__cell {
+    padding: 1.25rem 1rem;
+}
+
+.table__cell--header {
+    text-align: center;
+    padding: 0.5rem 1rem;
+    border-bottom: var(--border);
+}
+
+.table__element {
+    font-weight: 600;
+}
+
+.table__link {
+    color: var(--accent-colour-2);
+    text-decoration: none;
+}
+
+.table__link:hover {
+    color: var(--accent-colour);
+    text-decoration: underline;
+    text-decoration-color: var(--accent-colour);
+}
+
+.table__empty {
+    display: block;
+    text-align: center;
+    font-size: 1rem;
+}
+
