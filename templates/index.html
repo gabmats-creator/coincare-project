@@ -38,9 +38,6 @@
                         <td class="table__cell">
                             <p class="table__element">{{ bill.description }}</p>
                         </td>
-                        <td class="table__cell">
-                            <a href="{{ url_for('bill', _id=bill._id) }}" class="table__link">Detalhes</a>
-                        </td>
                     </tr>
                 {% endfor %}
             </tbody>

@@ -1,7 +1,9 @@
+{% from "macros/svgs.html" import trash, pencil %}
+
 {% extends "layout.html" %}
 
 {% block head_content %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/bills_to_pay.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bills.css') }}">
 {% endblock %}
 
 {% block main_content %}
@@ -22,6 +24,7 @@
                 <th class="table__cell table__cell--header">Data de vencimento</th>
                 <th class="table__cell table__cell--header">Descrição</th>
                 <th class="table__cell table__cell--header"></th>
+                <th class="table__cell table__cell--header"></th>
             </thead>
             <tbody>
                 {% for bill in bill_data %}
@@ -32,12 +35,14 @@
                         <td class="table__cell">{{ bill.billValue }}</td>
                         <td class="table__cell">{{ bill.expireDate }}</td>
                         <td class="table__cell">{{ bill.description}}</td>
+                        <td class="table__cell"><a class="bill__edit" href="#">{{ pencil("pencil") }}</a></td>
+                        <td class="table__cell"><a class="bill__delete" href="#">Excluir</a></td>
                     </tr>
                 {% endfor %}
             </tbody>
         </table>
     {% else %}
-        <p class="table__empty">Você ainda não possui nenhuma conta a pagar, deseja <a href="url_for('add_bill')" class="link">adicionar uma conta</a>?</p>
+        <p class="table__empty">Você ainda não possui nenhuma conta a pagar, deseja <a href="{{ url_for('add_bill') }}" class="link">adicionar uma conta</a>?</p>
     {% endif %}
 
     <a
