@@ -1,4 +1,5 @@
 {% from "macros/svgs.html" import trash, pencil %}
+{% from "macros/fields.html" import render_text_field %}
 
 {% extends "layout.html" %}
 
@@ -36,7 +37,10 @@
                         <td class="table__cell">{{ bill.expireDate }}</td>
                         <td class="table__cell">{{ bill.description}}</td>
                         <td class="table__cell"><a class="bill__edit" href="#">{{ pencil("pencil") }}</a></td>
-                        <td class="table__cell"><a class="bill__delete" href="#">Excluir</a></td>
+                        
+                        <td class="table__cell">
+                            <a href="{{ url_for('delete_bill', _id=bill._id) }}" class="table__link" id="mostrarPopup">Excluir</a>
+                        </td>
                     </tr>
                 {% endfor %}
             </tbody>
@@ -51,5 +55,23 @@
     >
     <span>+</span>
     </a>
+
+    {% if confirm %}
+        <div class="overlay" id="overlay"></div>
+        </div>
+
+        <div class="popup" id="popup">
+            <h2>Deseja excluir esta conta?</h2>
+            <p>Esta ação é definitiva</p>
+            <form method="POST">
+                <input type="hidden" name="operacao" value="excluir">
+                <button type="submit">Confirmar</button>
+            </form>
+            <form method="POST">
+                <input type="hidden" name="operacao" value="cancelar">
+                <button type="submit">Cancelar</button>
+            </form>
+        </div>
+    {% endif %}
 
 {% endblock %}

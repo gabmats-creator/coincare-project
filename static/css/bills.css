@@ -101,3 +101,28 @@
     color: var(--text);
     background-color: var(--item-colour);
 }
+
+.overlay {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 999;
+}
+
+/* Estilo para o conteúdo do popup */
+.popup {
+    display: block;
+    position: fixed;
+    background-color: #fff;
+    padding: 20px;
+    border: 1px solid #333;
+    border-radius: 5px;
+    z-index: 1000;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
