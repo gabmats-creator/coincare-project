@@ -36,20 +36,29 @@ def create_app():
         bill = [Bill(**bill) for bill in bills_data]
         return render_template('index.html', title="Coincare - Início", bill_data=bill)
     
-    @app.route("/contas")
+    @app.route("/contas", methods=["GET", "POST"])
     @login_required
-    def bills_to_pay():
+    def bills_to_pay(confirm=None):
         user_data = current_app.db.users.find_one({"email": session["email"]})
         user = User(**user_data)
         bills_data = current_app.db.bills.find({"_id": {"$in": user.bills}})
         bill = [Bill(**bill) for bill in bills_data]
-        return render_template('bills_to_pay.html', title="Coincare - Contas a Pagar", bill_data=bill)
+        
+        return render_template('bills_to_pay.html', title="Coincare - Contas a Pagar", bill_data=bill, confirm=confirm)
     
-    @app.get("/conta/<string:_id>")
-    def bill(_id: str):
-        bill_data = current_app.db.bills.find_one({"_id": _id})
-        bill = Bill(**bill_data)
-        return render_template("bill_details.html", bill=bill)
+    @app.route("/conta/<string:_id>", methods=["GET", "POST"])
+    def delete_bill(_id: str):
+        if request.method == "POST":
+            
+            operacao = request.form.get('operacao')
+            if operacao == "excluir":
+                user_data = current_app.db.users.find_one({'_id': session["user_id"]})
+
+                current_app.db.bills.delete_one({'_id': _id})
+
+            return redirect(url_for(".bills_to_pay"))
+
+        return bills_to_pay(True)
 
     @app.get("/toggle-theme")
     def toggle_theme():
