@@ -103,7 +103,7 @@ def create_app():
         if form.validate_on_submit():
             expire_date = str(form.expire_date.data)
             expire_formatted = datetime.strptime(expire_date, '%Y-%m-%d').strftime("%d-%m-%Y")
-            insertion_date = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+            insertion_date = datetime.today().strftime("%d-%m-%Y")
             description = "" if not form.description.data else form.description.data
             bill = Bill(
                 _id=uuid.uuid4().hex,
