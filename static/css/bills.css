@@ -118,11 +118,37 @@
     display: block;
     position: fixed;
     background-color: #fff;
-    padding: 20px;
     border: 1px solid #333;
     border-radius: 5px;
     z-index: 1000;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    padding: 2.5rem 1.5rem 1.5rem 1.5rem;
+}
+
+form {
+    margin: 0 auto;
+    max-width: 30rem;
+    border: var(--border);
+    font-size: 1.2rem;
+
+    background: var(--background-color);
+    box-shadow: 0.75rem 0.75rem 0 -0.2rem goldenrod;
+}
+
+.pop {
+    padding: 2.5rem 1.5rem 1.5rem 1.5rem;
+}
+
+@media screen and (min-width: 24.75em) {
+    .popup {
+        padding-left: 2rem;
+    }
+}
+
+@media screen and (min-width: 30em) {
+    .popup {
+        padding-left: 2.5rem;
+    }
 }

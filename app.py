@@ -38,27 +38,51 @@ def create_app():
     
     @app.route("/contas", methods=["GET", "POST"])
     @login_required
-    def bills_to_pay(confirm=None):
+    def bills_to_pay(confirm_delete=None, confirm_edit=None, bill=None):
         user_data = current_app.db.users.find_one({"email": session["email"]})
         user = User(**user_data)
-        bills_data = current_app.db.bills.find({"_id": {"$in": user.bills}})
-        bill = [Bill(**bill) for bill in bills_data]
+        if not bill:
+            bills_data = current_app.db.bills.find({"_id": {"$in": user.bills}})
+            bill = [Bill(**bill) for bill in bills_data]
         
-        return render_template('bills_to_pay.html', title="Coincare - Contas a Pagar", bill_data=bill, confirm=confirm)
+        return render_template('bills_to_pay.html', title="Coincare - Contas a Pagar", bill_data=bill, confirm_delete=confirm_delete, confirm_edit=confirm_edit)
     
     @app.route("/conta/<string:_id>", methods=["GET", "POST"])
     def delete_bill(_id: str):
         if request.method == "POST":
-            
             operacao = request.form.get('operacao')
             if operacao == "excluir":
-                user_data = current_app.db.users.find_one({'_id': session["user_id"]})
-
                 current_app.db.bills.delete_one({'_id': _id})
 
             return redirect(url_for(".bills_to_pay"))
 
-        return bills_to_pay(True)
+        return bills_to_pay(confirm_delete=True)
+    
+    @app.route("/edit/<string:_id>", methods=["GET", "POST"])
+    def edit_bill(_id: str):
+        operacao = request.form.get('operacao')
+        bills_data = current_app.db.bills.find({"_id": _id})
+        bill = [Bill(**bill) for bill in bills_data]
+        if request.method == "POST":
+            if operacao == "Confirmar":
+                if request.form.get("billName"):
+                    current_app.db.bills.update_one({"_id": _id},
+                    {"$set": {"billName": request.form.get("billName")}})
+                if request.form.get("billValue"):
+                    current_app.db.bills.update_one({"_id": _id},
+                    {"$set": {"billValue": request.form.get("billValue")}})
+                if request.form.get("expireDate"):
+                    expire_date = str(request.form.get("expireDate"))
+                    expire_formatted = datetime.strptime(expire_date, '%Y-%m-%d').strftime("%d-%m-%Y")
+                    current_app.db.bills.update_one({"_id": _id},
+                    {"$set": {"expireDate": expire_formatted}})
+                
+                current_app.db.bills.update_one({"_id": _id},
+                {"$set": {"description": request.form.get("description")}})
+
+            return redirect(url_for(".bills_to_pay"))
+        
+        return bills_to_pay(confirm_edit=True, bill=bill)
 
     @app.get("/toggle-theme")
     def toggle_theme():

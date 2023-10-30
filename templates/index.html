@@ -1,7 +1,10 @@
+{% from "macros/fields.html" import render_text_field %}
+
 {% extends "layout.html" %}
 
 {% block head_content %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bills.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/forms.css') }}">
 {% endblock %}
 
 {% block main_content %}
