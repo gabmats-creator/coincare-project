@@ -52,9 +52,7 @@ def create_app():
     @login_required
     def index():
         user_data = current_app.db.users.find_one({"email": session["email"]})
-        print(user_data)
         user = User(**user_data)
-        print(user)
         bills_data = current_app.db.bills.find({"_id": {"$in": user.bills}}).sort("insertDate", -1).limit(3)
         income_value = real_format(user.income)
         free_value, negative = calc_free_value(user)
@@ -204,7 +202,6 @@ def create_app():
                 session["email"] = user.email
 
                 return redirect(url_for(".index"))
-            print("chegou aqui")
             flash("Dados de login incorretos", category="danger")
         return render_template("login.html", title="CoinCare - Login", form=form)
     
