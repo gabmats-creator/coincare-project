@@ -13,6 +13,8 @@ class Bill:
 @dataclass
 class User:
     _id: str
+    name: str
     email: str
+    income: float
     password: str
     bills: list[str] = field(default_factory=list)

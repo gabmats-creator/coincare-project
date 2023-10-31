@@ -8,6 +8,14 @@
 {% endblock %}
 
 {% block main_content %}
+    <h1>Olá, {{ user_name }}</h1>
+    <p>Sua renda cadastrada é de R${{ user_income }}</p>
+    {% if negative %}
+        <p>Atualmente, você possui R${{ free_value }} de saldo negativo</p>
+    {% else %}
+        <p>Atualmente, você possui R${{ free_value }} livres para gastar</p>
+    {% endif %}
+    
     <h1>Contas recentes</h1>
     {% if bill_data %}
         <table class="table">

@@ -8,6 +8,7 @@ from datetime import datetime
 import uuid
 import functools
 import os
+import locale
 
 def create_app():
     app = Flask(__name__)
@@ -26,15 +27,40 @@ def create_app():
             return route(*args, **kwargs)
         
         return route_wrapper
+    
+    def real_format(value):
+        locale.setlocale(locale.LC_ALL, 'pt_BR.utf8')
+        float_value = value
+        formatted_value = locale.currency(float_value, grouping=True, symbol=None)
+
+        return formatted_value
+    
+    def calc_free_value(user):
+        bills_data_value = current_app.db.bills.find({"_id": {"$in": user.bills}})
+        custo_contas = 0
+        for conta in bills_data_value:
+            custo_contas += float(conta["billValue"])
+        income = user.income
+        free_value = income - custo_contas
+        negative = True if free_value < 0 else None
+        if free_value < 0:
+            free_value *= (-1)
+        return real_format(free_value), negative
+
 
     @app.route("/")
     @login_required
     def index():
         user_data = current_app.db.users.find_one({"email": session["email"]})
+        print(user_data)
         user = User(**user_data)
-        bills_data = current_app.db.bills.find({"_id": {"$in": user.bills}}).sort([("insertDate", -1)]).limit(3)
+        print(user)
+        bills_data = current_app.db.bills.find({"_id": {"$in": user.bills}}).sort("insertDate", -1).limit(3)
+        income_value = real_format(user.income)
+        free_value, negative = calc_free_value(user)
         bill = [Bill(**bill) for bill in bills_data]
-        return render_template('index.html', title="Coincare - Início", bill_data=bill)
+
+        return render_template('index.html', title="Coincare - Início", bill_data=bill, user_name=user.name, user_income=income_value, free_value=free_value, negative=negative)
     
     @app.route("/contas", methods=["GET", "POST"])
     @login_required
@@ -47,7 +73,35 @@ def create_app():
         
         return render_template('bills_to_pay.html', title="Coincare - Contas a Pagar", bill_data=bill, confirm_delete=confirm_delete, confirm_edit=confirm_edit)
     
+    @app.route("/add", methods=["GET", "POST"])
+    @login_required
+    def add_bill():
+        form = BillForm()
+
+        if form.validate_on_submit():
+            expire_date = str(form.expire_date.data)
+            expire_formatted = datetime.strptime(expire_date, '%Y-%m-%d').strftime("%d-%m-%Y")
+            insertion_date = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+            description = "" if not form.description.data else form.description.data
+            bill = Bill(
+                _id=uuid.uuid4().hex,
+                billName=form.bill_name.data,
+                billValue=form.bill_value.data,
+                expireDate=expire_formatted,
+                description=description,
+                insertDate=insertion_date
+            )
+            current_app.db.bills.insert_one(asdict(bill))
+            current_app.db.users.update_one(
+                {"_id": session["user_id"]}, {"$push": {"bills": bill._id}}
+            )
+
+            return redirect(url_for(".index"))
+
+        return render_template("new_bill.html", title="CoinCare - Adicionar Conta", form=form)
+    
     @app.route("/conta/<string:_id>", methods=["GET", "POST"])
+    @login_required
     def delete_bill(_id: str):
         if request.method == "POST":
             operacao = request.form.get('operacao')
@@ -59,6 +113,7 @@ def create_app():
         return bills_to_pay(confirm_delete=True)
     
     @app.route("/edit/<string:_id>", methods=["GET", "POST"])
+    @login_required
     def edit_bill(_id: str):
         operacao = request.form.get('operacao')
         bills_data = current_app.db.bills.find({"_id": _id})
@@ -107,7 +162,9 @@ def create_app():
             else:
                 user = User(
                     _id=uuid.uuid4().hex,
+                    name=form.nome.data,
                     email=form.email.data,
+                    income=form.income.data,
                     password=pbkdf2_sha256.hash(form.password.data),
                 )
 
@@ -127,33 +184,6 @@ def create_app():
         del session["email"]
 
         return redirect(url_for(".login"))
-
-    @app.route("/add", methods=["GET", "POST"])
-    @login_required
-    def add_bill():
-        form = BillForm()
-
-        if form.validate_on_submit():
-            expire_date = str(form.expire_date.data)
-            expire_formatted = datetime.strptime(expire_date, '%Y-%m-%d').strftime("%d-%m-%Y")
-            insertion_date = datetime.today().strftime("%d-%m-%Y")
-            description = "" if not form.description.data else form.description.data
-            bill = Bill(
-                _id=uuid.uuid4().hex,
-                billName=form.bill_name.data,
-                billValue=form.bill_value.data,
-                expireDate=expire_formatted,
-                description=description,
-                insertDate=insertion_date
-            )
-            current_app.db.bills.insert_one(asdict(bill))
-            current_app.db.users.update_one(
-                {"_id": session["user_id"]}, {"$push": {"bills": bill._id}}
-            )
-
-            return redirect(url_for(".index"))
-
-        return render_template("new_bill.html", title="CoinCare - Adicionar Conta", form=form)
     
     @app.route("/login", methods=["GET", "POST"])
     def login():

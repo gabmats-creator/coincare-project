@@ -17,9 +17,12 @@
 
         <div class="form__container">
             {{ form.hidden_tag() }}
+            {{ render_text_field(form.nome, placeholder="Nome completo") }}
             {{ render_text_field(form.email, placeholder="E-mail") }}
+            {{ render_text_field(form.income, placeholder="Renda mensal") }}
             {{ render_text_field(form.password, placeholder="Senha") }}
             {{ render_text_field(form.confirm_password, placeholder="Confirme sua senha") }}
+            
 
             <span class="form__small">
                 Já possui uma conta? <a href="{{ url_for('login') }}" class="form__link">Fazer Login</a>

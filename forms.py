@@ -13,7 +13,9 @@ class BillForm(FlaskForm):
     submit = SubmitField("Registrar")
 
 class RegisterForm(FlaskForm):
+    nome = StringField("Nome completo do usuário", validators=[InputRequired(message="Esse campo é obrigatório")])
     email = StringField("E-mail", validators=[InputRequired(message="Esse campo é obrigatório"), Email()])
+    income = FloatField("Renda mensal fixa", validators=[InputRequired(message="Esse campo é obrigatório")])
     password = PasswordField("Senha", validators=[InputRequired(message="Esse campo é obrigatório"), Length(min=4, max=20, message="Sua senha deve ter entre 4 e 20 caracteres")])
     confirm_password = PasswordField("Confirme sua senha", validators=[InputRequired(message="Esse campo é obrigatório"), EqualTo("password", message="Suas senhas devem ser iguais")])
     submit = SubmitField("Registrar")
