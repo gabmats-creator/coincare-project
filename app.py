@@ -47,8 +47,18 @@ def create_app():
             free_value *= (-1)
         return real_format(free_value), negative
 
-
     @app.route("/")
+    def homepage():
+        current_theme = session.get("theme")
+        session["theme"] = current_theme
+        if session.get("user_id"):
+            del session["user_id"]
+        if session.get("email"):
+            del session["email"]
+
+        return render_template("home.html")
+
+    @app.route("/home")
     @login_required
     def index():
         user_data = current_app.db.users.find_one({"email": session["email"]})
