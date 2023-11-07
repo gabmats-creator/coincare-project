@@ -1,7 +1,10 @@
+{% from "macros/svgs.html" import trash, pencil %}
+{% from "macros/fields.html" import render_text_field %}
+
 {% extends "layout.html" %}
 
 {% block head_content %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/bills_to_pay.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bills.css') }}">
 {% endblock %}
 
 {% block main_content %}
@@ -22,6 +25,7 @@
                 <th class="table__cell table__cell--header">Data de vencimento</th>
                 <th class="table__cell table__cell--header">Descrição</th>
                 <th class="table__cell table__cell--header"></th>
+                <th class="table__cell table__cell--header"></th>
             </thead>
             <tbody>
                 {% for bill in bill_data %}
@@ -32,12 +36,17 @@
                         <td class="table__cell">{{ bill.billValue }}</td>
                         <td class="table__cell">{{ bill.expireDate }}</td>
                         <td class="table__cell">{{ bill.description}}</td>
+                        <td class="table__cell"><a class="bill__edit" href="{{ url_for('edit_bill', _id=bill._id) }}">{{ pencil("pencil") }}</a></td>
+                        
+                        <td class="table__cell">
+                            <a href="{{ url_for('delete_bill', _id=bill._id) }}" class="table__link" id="mostrarPopup">Excluir</a>
+                        </td>
                     </tr>
                 {% endfor %}
             </tbody>
         </table>
     {% else %}
-        <p class="table__empty">Você ainda não possui nenhuma conta a pagar, deseja <a href="url_for('add_bill')" class="link">adicionar uma conta</a>?</p>
+        <p class="table__empty">Você ainda não possui nenhuma conta a pagar, deseja <a href="{{ url_for('add_bill') }}" class="link">adicionar uma conta</a>?</p>
     {% endif %}
 
     <a
@@ -46,5 +55,51 @@
     >
     <span>+</span>
     </a>
+
+    {% if confirm_delete %}
+        <div class="overlay" id="overlay"></div>
+        </div>
+
+        <div class="popup" id="popup">
+            <h2>Deseja excluir esta conta?</h2>
+            <p>Esta ação é definitiva</p>
+            <form method="POST">
+                <input type="hidden" name="operacao" value="excluir">
+                <button type="submit">Confirmar</button>
+            </form>
+            <form method="POST">
+                <input type="hidden" name="operacao" value="cancelar">
+                <button type="submit">Cancelar</button>
+            </form>
+        </div>
+    {% endif %}
+
+    {% if confirm_edit %}
+        <div class="overlay" id="overlay"></div>
+        <div class="popup" id="popup">
+            <h2>Editar dados</h2>
+            <p>insira apenas os campos que você deseja alterar</p>
+            {% for bill in bill_data %}
+                <form method="POST">
+                    <label for="billName">Nome da conta</label>
+                    <input id="billName" type="text" value="{{ bill.billName }}" name="billName" placeholder="Novo nome da conta">
+                    <label for="billValue">Valor</label>
+                    <input id="billValue" type="number" value="{{ bill.billValue }}" name="billValue" placeholder="Novo valor">
+                    <label for="expireDate">Vencimento</label>
+                    <input id="expireDate" type="date" value="{{ bill.expireDate }}" name="expireDate" placeholder="Novo vencimento">
+                    <label for="description">Descrição</label>
+                    <input id="description" type="text" value="{{ bill.description }}" name="description" placeholder="Nova descrição">
+                    <input  type="hidden" name="operacao" value="Confirmar">
+                        <button type="submit">Confirmar</button>
+                </form>
+            {% endfor %}
+            
+            <form method="POST">
+                <input type="hidden" name="operacao" value="cancelar">
+                <button type="submit">Cancelar</button>
+            </form>
+        </div>
+    
+    {% endif %}
 
 {% endblock %}

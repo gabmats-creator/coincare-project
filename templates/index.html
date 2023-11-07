@@ -1,10 +1,21 @@
+{% from "macros/fields.html" import render_text_field %}
+
 {% extends "layout.html" %}
 
 {% block head_content %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bills.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/forms.css') }}">
 {% endblock %}
 
 {% block main_content %}
+    <h1>Olá, {{ user_name }}</h1>
+    <p>Sua renda cadastrada é de R${{ user_income }}</p>
+    {% if negative %}
+        <p>Atualmente, você possui R${{ free_value }} de saldo negativo</p>
+    {% else %}
+        <p>Atualmente, você possui R${{ free_value }} livres para gastar</p>
+    {% endif %}
+    
     <h1>Contas recentes</h1>
     {% if bill_data %}
         <table class="table">
@@ -37,9 +48,6 @@
                         </td>
                         <td class="table__cell">
                             <p class="table__element">{{ bill.description }}</p>
-                        </td>
-                        <td class="table__cell">
-                            <a href="{{ url_for('bill', _id=bill._id) }}" class="table__link">Detalhes</a>
                         </td>
                     </tr>
                 {% endfor %}
