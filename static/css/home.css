@@ -1,0 +1,76 @@
+*{
+    color: var(--text-dark);
+    background-color: var(--background-color);
+}
+
+.home {
+    height: 100%;
+}
+
+.animacao-home {
+    min-height: 300px;
+}
+
+h1 {
+    font-weight: bold;
+    font-size: 3.4em;
+}
+
+.button-home {
+    font-weight: bold;
+    color: var(--text-inverted);
+    background-color: var(--background-color-inverted);
+    padding: 10px 20px;
+    border-radius: 10px;
+    width: 10rem;
+    margin-right: 10px;
+}
+
+.button-home:hover {
+    color: var(--text-dark);
+    background-color: var(--background-color);
+    border: var(--border-1px);
+}
+
+/* Cards */
+
+#cards {
+	height: 100%;
+	padding-top: 100px;
+	padding-bottom: 175px;
+	display: flex;
+	justify-content: center;
+}
+
+.card {
+	height: 100%;
+	padding: 20px;
+	border-radius: 20px;
+	box-shadow: rgba(0, 0, 0, 0.7) 0px 10px 30px -20px;
+}
+
+.card-body {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+#cards h4 {
+	color: rgb(116, 33, 252);
+}
+
+#cards h2 {
+	color: rgb(25, 21, 78);
+}
+
+#cards p {
+	color: #5B5E76;
+	font-size: 18px;
+}
+
+#cards a {
+	color: rgb(116, 33, 252);
+	font-size: 20px;
+}
+
+/* Fim Cards */

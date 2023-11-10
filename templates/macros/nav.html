@@ -9,16 +9,16 @@
         <nav class="nav">
             {% if not email %}
                 <a 
-                    href="{{ url_for('login') }}" 
-                    class="nav__link"
-                >
-                    <span class="nav__item">Log in</span>
-                </a>
-                <a 
                     href="{{ url_for('register') }}"
                     class="nav__link"
                 >
-                    <span class="nav__item">Registrar</span>
+                    <span class="nav__item">Cadastrar</span>
+                </a>
+                <a 
+                href="{{ url_for('login') }}" 
+                class="nav__link"
+                >
+                <span class="nav__item">Entrar</span>
                 </a>
             {% else %}
                 <a

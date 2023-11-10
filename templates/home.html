@@ -1,9 +1,125 @@
 {% extends "layout.html" %}
 
 {% block head_content %}
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
+    <!-- Bootstrap JS (optional) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/forms.css') }}">
 {% endblock %}
 
 {% block main_content %}
-    <p>Tela de informações iniciais, tem que criar um arquivo css pra ela</p>
+
+    <section>
+        <section class="container home">
+            <div class="row">
+                <div class="col-lg-6 d-flex">
+                    <div class="align-self-center">
+                        <div class="animacao-home pb-5">
+                            <h1><span class="auto-input"></span></h1>
+                        </div>
+                        <div>
+                            <p class="pb-3">
+                                O CoinCare é um projeto de Extensão Curricular Universitária da UniFil.<br>
+                                Uma ferramenta eficaz para gerenciar suas obrigações financeiras,<br>
+                                facilitando o controle e o acompanhamento de suas despesas mensais. 
+                            </p>
+                            <form class="mt-4 mb-4">
+                                <button href="" class="button-home">
+                                    Registrar
+                                </button>
+                                <button href="" class="button-home">
+                                    Entrar
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                </div>
+                <div class="col-lg-6 d-none d-lg-block">
+                <img src="" width="100%">
+                </div>
+            </div>
+        </section>
+    
+        <!-- Cards -->
+        <section id="cards" class="bg-white h-auto">
+            <div class="container">
+            <div class="row">
+                <div data-aos="fade-up" data-aos-delay="100" class="col text-center">
+                <h2>O que o CoinCare pode realizar<br> por você no seu planejamento financeiro?</h2>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-4 pt-5">
+                <div data-aos="fade-up" data-aos-delay="100" class="card">
+                    <div>
+                    <i class="fa-solid fa-bullhorn ml-4 mt-4 fa-3x" style="color: #6600ff;"></i>
+                    </div>
+                    <div class="card-body">
+                    <h3 class="card-title pt-4 pb-2">Campanhas</h3>
+                    <p class="card-text">Permita que sua I.A converse com cada eleitor do bairro, cidade ou estado. 
+                        A política se transforma em arte ao alcançar a casa de cada potencial eleitor. 
+                        Dialogue sobre os temas abordados na campanha, identifique a localização e interaja com as necessidades individuais de cada um.</p>
+                    </div>
+                </div>
+                </div>
+
+                <div class="col-lg-4 pt-5">
+                <div data-aos="fade-up" data-aos-delay="100" class="card">
+                    <div>
+                    <i class="fa-solid fa-landmark ml-4 mt-4 fa-3x" style="color: #6600ff;"></i>
+                    </div>
+                    <div class="card-body">
+                    <h3 class="card-title pt-4 pb-2">Políticas Públicas</h3>
+                    <p class="card-text">Visualize seu governo utilizando tecnologia avançada, focada em visualizar a experiência da população em tempo real. 
+                        Detecte as fragilidades na administração sob a visão de cada residente, 
+                        por meio de mapas que representem de forma dinâmica os problemas a serem resolvidos.</p>
+                    </div>
+                </div>
+                </div>
+
+                <div class="col-lg-4 pt-5">
+                <div data-aos="fade-up" data-aos-delay="100" class="card">
+                    <div>
+                    <i class="fa-solid fa-user-tie ml-4 mt-4" style="color: #6600ff; font-size: 54px;"></i>
+                    </div>
+                    <div class="card-body">
+                    <h3 class="card-title pt-4 pb-2">Assessores</h3>
+                    <p class="card-text">Conte com uma inteligência artificial para auxiliar o cotidiano do gabinete, esclarecendo dúvidas, 
+                        elaborando estratégias, aprimorando a capacitação técnica da equipe e 
+                        permitindo uma gestão mais eficiente dos dados durante a pré-campanha, campanhas e nas atividades diárias.</p>
+                    </div>
+                </div>
+                </div>
+            </div>
+            </div>
+        </section>
+        <!-- Fim Cards -->
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Typing Effect -->
+    <script src="https://unpkg.com/typed.js@2.0.16/dist/typed.umd.js"></script>
+    <script>
+        var typed = new Typed(".auto-input", {
+        strings: ["CoinCare! <br>A sua Plataforma de Controle de Finanças"],
+        typeSpeed: 50,
+        loop: false,
+        })
+    </script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+        AOS.init();
+        });
+    </script>
+    
 {% endblock %}
