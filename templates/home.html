@@ -34,11 +34,11 @@
                                 facilitando o controle e o acompanhamento de suas despesas mensais. 
                             </p>
                             <form class="mt-4 mb-4" data-aos="fade-up" data-aos-delay="100">
-                                <button href="" class="button-home">
-                                    Registrar
+                                <button class="button-home">
+                                    <a class="button-home__content" href="{{ url_for('register') }}">Cadastrar</a>
                                 </button>
-                                <button href="" class="button-home">
-                                    Entrar
+                                <button class="button-home">
+                                    <a class="button-home__content" href="{{ url_for('login') }}">Entrar</a>
                                 </button>
                             </form>
                         </div>
