@@ -1,0 +1,126 @@
+*{
+    color: var(--text-dark);
+    background-color: var(--background-color);
+}
+
+.home {
+    padding-top: 5rem;
+    height: 100%;
+}
+
+.animacao-home {
+    min-height: 300px;
+}
+
+h1 {
+    font-weight: bold;
+    font-size: 3.4rem;
+}
+
+.button-home {
+    font-weight: bold;
+    color: var(--text-inverted);
+    background-color: var(--background-color-inverted);
+    padding: 10px 20px;
+    border-radius: 5px;
+    width: 10rem;
+    margin-right: 10px;
+}
+
+.button-home:hover {
+    color: var(--text-dark);
+    background-color: var(--background-color);
+    border: var(--border-1px);
+}
+
+/* Cards */
+
+.cards-container {
+	height: 100%;
+	padding-top: 100px;
+	padding-bottom: 175px;
+	display: flex;
+	justify-content: center;
+    text-align: center;
+}
+
+.card {
+    height: 100%;
+    box-shadow: rgba(0, 0, 0, 0.7) 0px 10px 30px -20px;
+    border: var(--border-1px);
+}
+  
+.card-body {
+    padding: 35px;
+}
+
+/* Fim Cards */
+
+
+/* Small devices (landscape phones, 767.98px and up) */
+@media (max-width: 767.98px) {
+    .home {
+        display: flex;
+        flex-direction: column;
+		justify-content: center;
+		align-items: center;
+        text-align: center;
+		height: 100%;
+    }
+
+    .animacao-home {
+        min-height: 330px;
+    }
+
+    h1 {
+        font-size: 4.0rem;
+    }
+
+    p {
+        font-size: 1.3rem;
+        margin-bottom: 40px;
+    }
+
+    .button-home {
+        font-size: 1.6rem;
+        margin: 20px 0;
+        width: 100%;
+		display: flex;
+		justify-content: center;
+	}
+}
+
+/* Medium devices (tablets, 768px and up)*/
+@media (min-width: 768px) and (max-width: 991.98px) {
+    .home {
+        display: flex;
+        flex-direction: column;
+		justify-content: center;
+		align-items: center;
+        text-align: center;
+		height: 100%;
+    }
+
+    .animacao-home {
+        min-height: 250px;
+    }
+
+    h1 {
+        font-size: 4.0rem;
+    }
+
+    p {
+        font-size: 1.3rem;
+        margin-bottom: 40px;
+    }
+}
+
+/* Large devices (small desktops, 992px and up)*/
+@media (min-width: 992px) and (max-width: 1599.98px) {
+
+}
+
+/* Extra large devices (large desktops, 1600px and up)*/
+@media (min-width: 1600px) {
+
+}
