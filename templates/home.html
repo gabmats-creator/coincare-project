@@ -1,9 +1,132 @@
 {% extends "layout.html" %}
 
 {% block head_content %}
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
+    <!-- Bootstrap JS (optional) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Animação de Rolagem -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <!-- Our project just needs Font Awesome Free's Solid and Brand files -->
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/forms.css') }}">
 {% endblock %}
 
 {% block main_content %}
-    <p>Tela de informações iniciais, tem que criar um arquivo css pra ela</p>
+
+    <section>
+        <section class="container home">
+            <div class="row">
+                <div class="col-lg-6 d-flex">
+                    <div class="align-self-center">
+                        <div class="animacao-home pb-5" data-aos="fade-up" data-aos-delay="100">
+                            <h1><span class="auto-input"></span></h1>
+                        </div>
+                        <div>
+                            <p class="pb-3" data-aos="fade-up" data-aos-delay="100">
+                                O CoinCare é um projeto de Extensão Curricular Universitária da UniFil.<br>
+                                Uma ferramenta eficaz para gerenciar suas obrigações financeiras,<br>
+                                facilitando o controle e o acompanhamento de suas despesas mensais. 
+                            </p>
+                            <form class="mt-4 mb-4" data-aos="fade-up" data-aos-delay="100">
+                                <button href="" class="button-home">
+                                    Registrar
+                                </button>
+                                <button href="" class="button-home">
+                                    Entrar
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 d-none d-lg-block">
+                    <img src="" width="100%">
+                </div>
+            </div>
+        </section>
+    
+        <!-- Cards -->
+        <section class="cards-container h-auto">
+            <div class="container">
+            <div class="row">
+                <div data-aos="fade-up" data-aos-delay="100" class="col text-center">
+                    <h2>O que o CoinCare pode realizar<br> por você no seu Planejamento Financeiro?</h2>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-4 pt-5">
+                <div data-aos="fade-up" data-aos-delay="100" class="card">
+                    <div>
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <div class="card-body">
+                        <h3 class="card-title pt-4 pb-2">Controle de Gastos</h3>
+                        <p class="card-text">Permitimos que você mesmo insira as informações financeiras de forma rápida e intuitiva. 
+                            Além disso, o sistema possibilita a inclusão tanto de contas fixas e gastos cotidianos, 
+                            contribuindo para um panorama completo das finanças.</p>
+                    </div>
+                </div>
+                </div>
+
+                <div class="col-lg-4 pt-5">
+                <div data-aos="fade-up" data-aos-delay="100" class="card">
+                    <div>
+                    <i class="fa-solid fa-landmark ml-4 mt-4 fa-3x" style="color: #6600ff;"></i>
+                    </div>
+                    <div class="card-body">
+                        <h3 class="card-title pt-4 pb-2">Organização Financeira</h3>
+                        <p class="card-text">Cálculo automático do saldo disponível mensal 
+                            ao subtrair despesas fixas programadas e gastos cotidianos 
+                            da receita total. Assim, você obtém uma visão clara de quanto 
+                            dinheiro está disponível para tomar decisões.</p>
+                    </div>
+                </div>
+                </div>
+
+                <div class="col-lg-4 pt-5">
+                <div data-aos="fade-up" data-aos-delay="100" class="card">
+                    <div>
+                    <i class="fa-solid fa-user-tie ml-4 mt-4" style="color: #6600ff; font-size: 54px;"></i>
+                    </div>
+                    <div class="card-body">
+                        <h3 class="card-title pt-4 pb-2">Saúde Financeira</h3>
+                        <p class="card-text">Empoderamos você a tomar medidas pró-ativas para alcançar 
+                            um equilíbrio saudável entre suas receitas e despesas. 
+                            Com o controle sobre suas finanças, 
+                            promovemos uma gestão mais eficiente e consciente de suas finanças pessoais.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </section>
+        <!-- Fim Cards -->
+
+    <!-- Bootstrap JS (optional) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Typing Effect -->
+    <script src="https://unpkg.com/typed.js@2.0.16/dist/typed.umd.js"></script>
+    <script>
+        var typed = new Typed(".auto-input", {
+        strings: ["CoinCare! <br>A sua Plataforma de Controle de Finanças"],
+        typeSpeed: 50,
+        loop: false,
+        })
+    </script>
+
+    <!-- Animação de Rolagem -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+        AOS.init();
+        });
+    </script>
+    
 {% endblock %}
