@@ -1,4 +1,13 @@
-from flask import Flask, render_template, url_for, request, session, redirect, flash, current_app
+from flask import (
+    Flask,
+    render_template,
+    url_for,
+    request,
+    session,
+    redirect,
+    flash,
+    current_app,
+)
 from dataclasses import asdict
 from forms import BillForm, RegisterForm, LoginForm
 from models import Bill, User
@@ -9,6 +18,7 @@ import uuid
 import functools
 import os
 import locale
+
 
 def create_app():
     app = Flask(__name__)
@@ -23,28 +33,56 @@ def create_app():
         def route_wrapper(*args, **kwargs):
             if session.get("email") is None:
                 return redirect(url_for(".login"))
-            
+
             return route(*args, **kwargs)
-        
+
         return route_wrapper
-    
+
+    def get_month_name(date):
+        fields = date.split("/")
+        month = fields[1]
+
+        months = {
+            "01": "Janeiro",
+            "02": "Fevereiro",
+            "03": "Março",
+            "04": "Abril",
+            "05": "Maio",
+            "06": "Junho",
+            "07": "Julho",
+            "08": "Agosto",
+            "09": "Setembro",
+            "10": "Outubro",
+            "11": "Novembro",
+            "12": "Dezembro",
+        }
+
+        return months[month]
+
     def real_format(value):
-        locale.setlocale(locale.LC_ALL, 'pt_BR.utf8')
+        locale.setlocale(locale.LC_ALL, "pt_BR.utf8")
         float_value = value
         formatted_value = locale.currency(float_value, grouping=True, symbol=None)
 
         return formatted_value
-    
+
     def calc_free_value(user):
-        bills_data_value = current_app.db.bills.find({"_id": {"$in": user.bills}})
+        cond1 = {"mensal": True}
+        cond2 = {
+            "insertMonth": get_month_name(datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+        }
+        mensal_bills_data_value = current_app.db.bills.find(
+            {"_id": {"$in": user.bills}, "$or": [cond1, cond2]}
+        )
+
         custo_contas = 0
-        for conta in bills_data_value:
+        for conta in mensal_bills_data_value:
             custo_contas += float(conta["billValue"])
         income = user.income
         free_value = income - custo_contas
         negative = True if free_value < 0 else None
         if free_value < 0:
-            free_value *= (-1)
+            free_value *= -1
         return real_format(free_value), negative
 
     @app.route("/")
@@ -63,24 +101,54 @@ def create_app():
     def index():
         user_data = current_app.db.users.find_one({"email": session["email"]})
         user = User(**user_data)
-        bills_data = current_app.db.bills.find({"_id": {"$in": user.bills}}).sort("insertDate", -1).limit(3)
+        cond1 = {"mensal": True}
+        cond2 = {
+            "insertMonth": get_month_name(datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+        }
+        bills_data = (
+            current_app.db.bills.find({"_id": {"$in": user.bills}, "$or": [cond1, cond2]})
+            .sort("insertDate", -1)
+            .limit(3)
+        )
         income_value = real_format(user.income)
         free_value, negative = calc_free_value(user)
         bill = [Bill(**bill) for bill in bills_data]
+        atual_month = get_month_name(datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
 
-        return render_template('index.html', title="Coincare - Início", bill_data=bill, user_name=user.name, user_income=income_value, free_value=free_value, negative=negative)
-    
+        return render_template(
+            "index.html",
+            title="Coincare - Início",
+            bill_data=bill,
+            user_name=user.name,
+            user_income=income_value,
+            free_value=free_value,
+            negative=negative,
+            mes=atual_month,
+        )
+
     @app.route("/contas", methods=["GET", "POST"])
     @login_required
     def bills_to_pay(confirm_delete=None, confirm_edit=None, bill=None):
         user_data = current_app.db.users.find_one({"email": session["email"]})
         user = User(**user_data)
+        atual_month = get_month_name(datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
         if not bill:
-            bills_data = current_app.db.bills.find({"_id": {"$in": user.bills}})
+            cond1 = {"mensal": True}
+            cond2 = {
+                "insertMonth": get_month_name(datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+            }
+            bills_data = current_app.db.bills.find({"_id": {"$in": user.bills},  "$or": [cond1, cond2]})
             bill = [Bill(**bill) for bill in bills_data]
-        
-        return render_template('bills_to_pay.html', title="Coincare - Contas a Pagar", bill_data=bill, confirm_delete=confirm_delete, confirm_edit=confirm_edit)
-    
+
+        return render_template(
+            "bills_to_pay.html",
+            title="Coincare - Contas a Pagar",
+            bill_data=bill,
+            confirm_delete=confirm_delete,
+            confirm_edit=confirm_edit,
+            mes=atual_month,
+        )
+
     @app.route("/add", methods=["GET", "POST"])
     @login_required
     def add_bill():
@@ -88,8 +156,11 @@ def create_app():
 
         if form.validate_on_submit():
             expire_date = str(form.expire_date.data)
-            expire_formatted = datetime.strptime(expire_date, '%Y-%m-%d').strftime("%d-%m-%Y")
+            expire_formatted = datetime.strptime(expire_date, "%Y-%m-%d").strftime(
+                "%d-%m-%Y"
+            )
             insertion_date = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+            insertion_month = get_month_name(insertion_date)
             description = "" if not form.description.data else form.description.data
             bill = Bill(
                 _id=uuid.uuid4().hex,
@@ -97,7 +168,9 @@ def create_app():
                 billValue=form.bill_value.data,
                 expireDate=expire_formatted,
                 description=description,
-                insertDate=insertion_date
+                insertDate=insertion_date,
+                insertMonth=insertion_month,
+                mensal=True if form.frequence.data == "mensal" else False,
             )
             current_app.db.bills.insert_one(asdict(bill))
             current_app.db.users.update_one(
@@ -106,45 +179,56 @@ def create_app():
 
             return redirect(url_for(".index"))
 
-        return render_template("new_bill.html", title="CoinCare - Adicionar Conta", form=form)
-    
+        return render_template(
+            "new_bill.html", title="CoinCare - Adicionar Conta", form=form
+        )
+
     @app.route("/conta/<string:_id>", methods=["GET", "POST"])
     @login_required
     def delete_bill(_id: str):
         if request.method == "POST":
-            operacao = request.form.get('operacao')
+            operacao = request.form.get("operacao")
             if operacao == "excluir":
-                current_app.db.bills.delete_one({'_id': _id})
+                current_app.db.bills.delete_one({"_id": _id})
 
             return redirect(url_for(".bills_to_pay"))
 
         return bills_to_pay(confirm_delete=True)
-    
+
     @app.route("/edit/<string:_id>", methods=["GET", "POST"])
     @login_required
     def edit_bill(_id: str):
-        operacao = request.form.get('operacao')
+        operacao = request.form.get("operacao")
         bills_data = current_app.db.bills.find({"_id": _id})
         bill = [Bill(**bill) for bill in bills_data]
         if request.method == "POST":
             if operacao == "Confirmar":
                 if request.form.get("billName"):
-                    current_app.db.bills.update_one({"_id": _id},
-                    {"$set": {"billName": request.form.get("billName")}})
+                    current_app.db.bills.update_one(
+                        {"_id": _id},
+                        {"$set": {"billName": request.form.get("billName")}},
+                    )
                 if request.form.get("billValue"):
-                    current_app.db.bills.update_one({"_id": _id},
-                    {"$set": {"billValue": request.form.get("billValue")}})
+                    current_app.db.bills.update_one(
+                        {"_id": _id},
+                        {"$set": {"billValue": request.form.get("billValue")}},
+                    )
                 if request.form.get("expireDate"):
                     expire_date = str(request.form.get("expireDate"))
-                    expire_formatted = datetime.strptime(expire_date, '%Y-%m-%d').strftime("%d-%m-%Y")
-                    current_app.db.bills.update_one({"_id": _id},
-                    {"$set": {"expireDate": expire_formatted}})
-                
-                current_app.db.bills.update_one({"_id": _id},
-                {"$set": {"description": request.form.get("description")}})
+                    expire_formatted = datetime.strptime(
+                        expire_date, "%Y-%m-%d"
+                    ).strftime("%d-%m-%Y")
+                    current_app.db.bills.update_one(
+                        {"_id": _id}, {"$set": {"expireDate": expire_formatted}}
+                    )
+
+                current_app.db.bills.update_one(
+                    {"_id": _id},
+                    {"$set": {"description": request.form.get("description")}},
+                )
 
             return redirect(url_for(".bills_to_pay"))
-        
+
         return bills_to_pay(confirm_edit=True, bill=bill)
 
     @app.get("/toggle-theme")
@@ -156,7 +240,7 @@ def create_app():
             session["theme"] = "dark"
 
         return redirect(request.args.get("current_page"))
-    
+
     @app.route("/registrar", methods=["GET", "POST"])
     def register():
         if session.get("email"):
@@ -179,11 +263,11 @@ def create_app():
                 current_app.db.users.insert_one(asdict(user))
 
                 flash("Usuário registrado com sucesso!!")
-                
+
                 return redirect(url_for(".login"))
 
         return render_template("register.html", title="CoinCare - Registrar", form=form)
-    
+
     @app.route("/logout")
     def logout():
         current_theme = session.get("theme")
@@ -192,12 +276,12 @@ def create_app():
         del session["email"]
 
         return redirect(url_for(".login"))
-    
+
     @app.route("/login", methods=["GET", "POST"])
     def login():
         if session.get("email"):
             return redirect(url_for(".index"))
-        
+
         form = LoginForm()
 
         if form.validate_on_submit():
@@ -214,5 +298,5 @@ def create_app():
                 return redirect(url_for(".index"))
             flash("Dados de login incorretos", category="danger")
         return render_template("login.html", title="CoinCare - Login", form=form)
-    
+
     return app

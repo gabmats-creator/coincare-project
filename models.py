@@ -9,6 +9,8 @@ class Bill:
     expireDate: str
     description: str
     insertDate: str
+    insertMonth: str
+    mensal: bool
 
 @dataclass
 class User:
