@@ -59,12 +59,10 @@ def create_app():
 
         return months[month]
 
-    def real_format(value):
-        locale.setlocale(locale.LC_ALL, "pt_BR.utf8")
-        float_value = value
-        formatted_value = locale.currency(float_value, grouping=True, symbol=None)
+    def formata_reais(valor):
+        valor_formatado = f"R$ {valor:.2f}"
 
-        return formatted_value
+        return valor_formatado
 
     def calc_free_value(user):
         cond1 = {"mensal": True}
@@ -83,7 +81,7 @@ def create_app():
         negative = True if free_value < 0 else None
         if free_value < 0:
             free_value *= -1
-        return real_format(free_value), negative
+        return formata_reais(free_value), negative
 
     @app.route("/")
     def homepage():
@@ -110,9 +108,11 @@ def create_app():
             .sort("insertDate", -1)
             .limit(3)
         )
-        income_value = real_format(user.income)
+        income_value = formata_reais(user.income)
         free_value, negative = calc_free_value(user)
         bill = [Bill(**bill) for bill in bills_data]
+        for conta in bill:
+            conta.billValue = formata_reais(conta.billValue)
         atual_month = get_month_name(datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
 
         return render_template(
@@ -139,6 +139,8 @@ def create_app():
             }
             bills_data = current_app.db.bills.find({"_id": {"$in": user.bills},  "$or": [cond1, cond2]})
             bill = [Bill(**bill) for bill in bills_data]
+            for conta in bill:
+                conta.billValue = formata_reais(conta.billValue)
 
         return render_template(
             "bills_to_pay.html",
