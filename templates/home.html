@@ -1,4 +1,5 @@
 {% extends "layout.html" %}
+{% from "macros/svgs.html" import calendar, calculator, control %}
 
 {% block head_content %}
     <!-- Bootstrap CSS -->
@@ -34,39 +35,37 @@
                                 facilitando o controle e o acompanhamento de suas despesas mensais. 
                             </p>
                             <form class="mt-4 mb-4" data-aos="fade-up" data-aos-delay="100">
-                                <button class="button-home">
-                                    <a class="button-home__content" href="{{ url_for('register') }}">Cadastrar</a>
-                                </button>
-                                <button class="button-home">
-                                    <a class="button-home__content" href="{{ url_for('login') }}">Entrar</a>
-                                </button>
+                                <a class="button-home" href="{{ url_for('register') }}" alt="Cadastrar">
+                                    Cadastrar
+                                </a>
+                                <a class="button-home" href="{{ url_for('login') }}" alt="Entrar">
+                                    Entrar
+                                </a>
                             </form>
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-6 d-none d-lg-block">
-                    <img src="" width="100%">
+                <div class="col-lg-6 d-none d-lg-block" data-aos="fade-up" data-aos-delay="100">
+                    <img src="{{ url_for('static', filename='image/coincare-home.png') }}" alt="Cofrinho CoinCare" >
                 </div>
             </div>
         </section>
     
         <!-- Cards -->
-        <section class="cards-container h-auto">
+        <section class="cards-container">
             <div class="container">
             <div class="row">
                 <div data-aos="fade-up" data-aos-delay="100" class="col text-center">
-                    <h2>O que o CoinCare pode realizar<br> por você no seu Planejamento Financeiro?</h2>
+                    <h2>Como o CoinCare pode <br>transformar e beneficiar a Socidade?</h2>
                 </div>
             </div>
 
             <div class="row">
                 <div class="col-lg-4 pt-5">
                 <div data-aos="fade-up" data-aos-delay="100" class="card">
-                    <div>
-                        <i class="fas fa-envelope"></i>
-                    </div>
                     <div class="card-body">
-                        <h3 class="card-title pt-4 pb-2">Controle de Gastos</h3>
+                        {{ calculator("calculator") }}
+                        <h3 class="card-title pt-4 pb-2">Controle Financeiro</h3>
                         <p class="card-text">Permitimos que você mesmo insira as informações financeiras de forma rápida e intuitiva. 
                             Além disso, o sistema possibilita a inclusão tanto de contas fixas e gastos cotidianos, 
                             contribuindo para um panorama completo das finanças.</p>
@@ -76,10 +75,8 @@
 
                 <div class="col-lg-4 pt-5">
                 <div data-aos="fade-up" data-aos-delay="100" class="card">
-                    <div>
-                    <i class="fa-solid fa-landmark ml-4 mt-4 fa-3x" style="color: #6600ff;"></i>
-                    </div>
                     <div class="card-body">
+                        {{ calendar("calendar") }}
                         <h3 class="card-title pt-4 pb-2">Organização Financeira</h3>
                         <p class="card-text">Cálculo automático do saldo disponível mensal 
                             ao subtrair despesas fixas programadas e gastos cotidianos 
@@ -91,15 +88,71 @@
 
                 <div class="col-lg-4 pt-5">
                 <div data-aos="fade-up" data-aos-delay="100" class="card">
-                    <div>
-                    <i class="fa-solid fa-user-tie ml-4 mt-4" style="color: #6600ff; font-size: 54px;"></i>
-                    </div>
                     <div class="card-body">
+                        {{ control("control") }}
                         <h3 class="card-title pt-4 pb-2">Saúde Financeira</h3>
                         <p class="card-text">Empoderamos você a tomar medidas pró-ativas para alcançar 
                             um equilíbrio saudável entre suas receitas e despesas. 
                             Com o controle sobre suas finanças, 
                             promovemos uma gestão mais eficiente e consciente de suas finanças pessoais.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </section>
+        <!-- Fim Cards -->
+
+        <!-- Cards -->
+        <section class="cards-container">
+            <div class="container">
+            <div class="row">
+                <div data-aos="fade-up" data-aos-delay="100" class="col text-center">
+                    <h2>Nosso Objetivo</h2>
+                    <p class="p-3">Auxiliar na gestão financeira pessoal, por meio de uma interface intuitiva e de fácil entendimento, 
+                        possibilitamos que o usuário informe cada nova entrada ou saída de dinheiro em seu domínio, 
+                        permitindo que o sistema traga informações sobre quanto ele ainda possui disponível para 
+                        gastar de forma a não ultrapassar seus ganhos, de forma a evitar um déficit financeiro.</p>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-3 pt-3">
+                    <div data-aos="fade-up" data-aos-delay="100" class="card">
+                        <div class="card-body align-self-center">
+                            <img src="{{ url_for('static', filename='image/gabriel.jpeg') }}"  width="280px" height="auto" alt="Foto Gabriel Matheus Aquilera Silva" >
+                            <h4 class="card-title pt-4 pb-2">Gabriel Matheus<br> Aquilera Silva</h4>
+                            <p class="card-text">Ciência da Computação</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 pt-3">
+                    <div data-aos="fade-up" data-aos-delay="100" class="card">
+                        <div class="card-body align-self-center">
+                            <img src="{{ url_for('static', filename='image/rafael.png') }}" width="280px" height="auto" alt="Foto Rafael Yuki Tobaru" >
+                            <h4 class="card-title pt-4 pb-2">Rafael Yuki <br>Tobaru</h4>
+                            <p class="card-text">Engenharia de Software</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 pt-3">
+                    <div data-aos="fade-up" data-aos-delay="100" class="card">
+                        <div class="card-body align-self-center">
+                            <img src="{{ url_for('static', filename='image/samuel.png') }}" width="280px" height="auto" alt="Foto Samuel Pereira Cunha">
+                            <h4 class="card-title pt-4 pb-2">Samuel Pereira<br> Cunha</h4>
+                            <p class="card-text">Engenharia de Software</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 pt-3">
+                <div data-aos="fade-up" data-aos-delay="100" class="card">
+                    <div class="card-body align-self-center">
+                        <img src="{{ url_for('static', filename='image/luis.jpg') }}"  width="280px" height="auto" alt="Foto Luis Felipe Ferreira Caldarelli">
+                        <h4 class="card-title pt-4 pb-2">Luis Felipe <br>Ferreira Caldarelli</h4>
+                        <p class="card-text">Ciência da Computação</p>
                         </div>
                     </div>
                 </div>
