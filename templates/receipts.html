@@ -8,8 +8,8 @@
 {% endblock %}
 
 {% block main_content %}
-    <h1>Todas as contas do mês de {{ mes }}</h1>
-    {% if bill_data %}
+    <h1>Todas as suas rendas do mês de {{ mes }}</h1>
+    {% if receipt_data %}
         <table class="table">
             <colgroup>
                 <col style="width: 20%">
@@ -20,37 +20,37 @@
             </colgroup>
             
             <thead>
-                <th class="table__cell table__cell--header">Nome da Conta</th>
+                <th class="table__cell table__cell--header">Nome da Renda</th>
                 <th class="table__cell table__cell--header">Valor</th>
-                <th class="table__cell table__cell--header">Data de vencimento</th>
+                <th class="table__cell table__cell--header">Data de inserção</th>
                 <th class="table__cell table__cell--header">Descrição</th>
                 <th class="table__cell table__cell--header"></th>
                 <th class="table__cell table__cell--header"></th>
             </thead>
             <tbody>
-                {% for bill in bill_data %}
+                {% for receipt in receipt_data %}
                     <tr>
                         <td class="table__cell">
-                            <p class="table__billname">{{ bill.billName }}</p>
+                            <p class="table__billname">{{ receipt.receiptName }}</p>
                         </td>
-                        <td class="table__cell">{{ bill.billValue }}</td>
-                        <td class="table__cell">{{ bill.expireDate }}</td>
-                        <td class="table__cell">{{ bill.description}}</td>
-                        <td class="table__cell"><a class="bill__edit" href="{{ url_for('edit_bill', _id=bill._id) }}">{{ pencil("pencil") }}</a></td>
+                        <td class="table__cell">{{ receipt.receiptValue }}</td>
+                        <td class="table__cell">{{ receipt.insertDate }}</td>
+                        <td class="table__cell">{{ receipt.description}}</td>
+                        <td class="table__cell"><a class="bill__edit" href="{{ url_for('edit_receipt', _id=receipt._id) }}">{{ pencil("pencil") }}</a></td>
                         
                         <td class="table__cell">
-                            <a href="{{ url_for('delete_bill', _id=bill._id) }}" class="table__link" id="mostrarPopup">Excluir</a>
+                            <a href="{{ url_for('delete_receipt', _id=receipt._id) }}" class="table__link" id="mostrarPopup">Excluir</a>
                         </td>
                     </tr>
                 {% endfor %}
             </tbody>
         </table>
     {% else %}
-        <p class="table__empty">Você ainda não possui nenhuma conta a pagar, deseja <a href="{{ url_for('add_bill') }}" class="link">adicionar uma conta</a>?</p>
+        <p class="table__empty">Você ainda não possui nenhuma conta a pagar, deseja <a href="{{ url_for('add_receipt') }}" class="link">adicionar uma renda</a>?</p>
     {% endif %}
 
     <a
-        href="{{ url_for('add_bill') }}" 
+        href="{{ url_for('add_receipt') }}" 
         class="button button--add"
     >
     <span>+</span>
@@ -78,20 +78,18 @@
         <div class="overlay" id="overlay"></div>
         <div class="popup" id="popup">
             {% if error %}
-            <p style="color: red;">{{ error }}</p>
+                <p style="color: red;">{{ error }}</p>
             {% endif %}
             <h2>Editar dados</h2>
             <p>insira apenas os campos que você deseja alterar</p>
-            {% for bill in bill_data %}
+            {% for receipt in receipt_data %}
                 <form method="POST">
-                    <label for="billName">Nome da conta</label>
-                    <input id="billName" type="text" value="{{ bill.billName }}" name="billName" placeholder="Novo nome da conta">
-                    <label for="billValue">Valor</label>
-                    <input id="billValue" type="float" value="{{ bill.billValue }}" name="billValue" placeholder="Novo valor">
-                    <label for="expireDate">Vencimento</label>
-                    <input id="expireDate" type="date" value="{{ bill.expireDate }}" name="expireDate" placeholder="Novo vencimento">
+                    <label for="receiptName">Nome da conta</label>
+                    <input id="receiptName" type="text" value="{{ receipt.receiptName }}" name="receiptName" placeholder="Novo nome da conta">
+                    <label for="receiptValue">Valor</label>
+                    <input id="receiptValue" type="float" value="{{ receipt.receiptValue }}" name="receiptValue" placeholder="Novo valor">
                     <label for="description">Descrição</label>
-                    <input id="description" type="text" value="{{ bill.description }}" name="description" placeholder="Nova descrição">
+                    <input id="description" type="text" value="{{ receipt.description }}" name="description" placeholder="Nova descrição">
                     <input  type="hidden" name="operacao" value="Confirmar">
                         <button type="submit">Confirmar</button>
                 </form>
