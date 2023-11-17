@@ -9,15 +9,15 @@ from flask import (
     current_app,
 )
 from dataclasses import asdict
-from forms import BillForm, RegisterForm, LoginForm
-from models import Bill, User
+from forms import BillForm, RegisterForm, LoginForm, ReceiptForm
+from models import Bill, User, Receipt
 from pymongo import MongoClient
 from passlib.hash import pbkdf2_sha256
 from datetime import datetime
 import uuid
 import functools
 import os
-import locale
+import re
 
 
 def create_app():
@@ -59,10 +59,18 @@ def create_app():
 
         return months[month]
 
-    def formata_reais(valor):
-        valor_formatado = f"R$ {valor:.2f}"
+    def validate_float(value):
+        try:
+            format_value = re.sub(re.escape(","), ".", value)
+            float_value = float(format_value)
 
-        return valor_formatado
+            return float_value
+        except ValueError:
+            return 'Erro: Certifique-se de inserir um número válido.'
+
+    def formata_reais(valor):
+        valor_formatado = f"R$ {float(valor):.2f}"
+        return re.sub(re.escape("."), ",", valor_formatado)
 
     def calc_free_value(user):
         cond1 = {"mensal": True}
@@ -72,12 +80,24 @@ def create_app():
         mensal_bills_data_value = current_app.db.bills.find(
             {"_id": {"$in": user.bills}, "$or": [cond1, cond2]}
         )
-
+        mensal_receipts = current_app.db.receipts.find(
+            {
+                "_id": {"$in": user.receipts},
+                "insertMonth": get_month_name(
+                    datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+                ),
+            }
+        )
         custo_contas = 0
         for conta in mensal_bills_data_value:
             custo_contas += float(conta["billValue"])
+
+        rendas = 0
+        for renda in mensal_receipts:
+            rendas += float(renda["receiptValue"])
+
         income = user.income
-        free_value = income - custo_contas
+        free_value = (income + rendas) - custo_contas
         negative = True if free_value < 0 else None
         if free_value < 0:
             free_value *= -1
@@ -104,7 +124,9 @@ def create_app():
             "insertMonth": get_month_name(datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
         }
         bills_data = (
-            current_app.db.bills.find({"_id": {"$in": user.bills}, "$or": [cond1, cond2]})
+            current_app.db.bills.find(
+                {"_id": {"$in": user.bills}, "$or": [cond1, cond2]}
+            )
             .sort("insertDate", -1)
             .limit(3)
         )
@@ -128,16 +150,20 @@ def create_app():
 
     @app.route("/contas", methods=["GET", "POST"])
     @login_required
-    def bills_to_pay(confirm_delete=None, confirm_edit=None, bill=None):
+    def bills_to_pay(confirm_delete=None, confirm_edit=None, bill=None, error=None):
         user_data = current_app.db.users.find_one({"email": session["email"]})
         user = User(**user_data)
         atual_month = get_month_name(datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
         if not bill:
             cond1 = {"mensal": True}
             cond2 = {
-                "insertMonth": get_month_name(datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+                "insertMonth": get_month_name(
+                    datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+                )
             }
-            bills_data = current_app.db.bills.find({"_id": {"$in": user.bills},  "$or": [cond1, cond2]})
+            bills_data = current_app.db.bills.find(
+                {"_id": {"$in": user.bills}, "$or": [cond1, cond2]}
+            )
             bill = [Bill(**bill) for bill in bills_data]
             for conta in bill:
                 conta.billValue = formata_reais(conta.billValue)
@@ -149,6 +175,7 @@ def create_app():
             confirm_delete=confirm_delete,
             confirm_edit=confirm_edit,
             mes=atual_month,
+            error=error,
         )
 
     @app.route("/add", methods=["GET", "POST"])
@@ -192,12 +219,15 @@ def create_app():
             operacao = request.form.get("operacao")
             if operacao == "excluir":
                 current_app.db.bills.delete_one({"_id": _id})
+                current_app.db.users.update_one(
+                    {"_id": session["user_id"]}, {"$pull": {"receipts": _id}}
+                )
 
             return redirect(url_for(".bills_to_pay"))
 
         return bills_to_pay(confirm_delete=True)
 
-    @app.route("/edit/<string:_id>", methods=["GET", "POST"])
+    @app.route("/editar-conta/<string:_id>", methods=["GET", "POST"])
     @login_required
     def edit_bill(_id: str):
         operacao = request.form.get("operacao")
@@ -205,15 +235,21 @@ def create_app():
         bill = [Bill(**bill) for bill in bills_data]
         if request.method == "POST":
             if operacao == "Confirmar":
+                if request.form.get("billValue"):
+                    float_value = validate_float(request.form["billValue"])
+                    if type(float_value) == float:
+                        current_app.db.bills.update_one(
+                            {"_id": _id},
+                            {"$set": {"billValue": float_value}},
+                        )
+                    else:
+                        error = "O formato do valor em dinheiro é inválido"
+                        return bills_to_pay(confirm_edit=True, bill=bill, error=error)
+                    
                 if request.form.get("billName"):
                     current_app.db.bills.update_one(
                         {"_id": _id},
                         {"$set": {"billName": request.form.get("billName")}},
-                    )
-                if request.form.get("billValue"):
-                    current_app.db.bills.update_one(
-                        {"_id": _id},
-                        {"$set": {"billValue": request.form.get("billValue")}},
                     )
                 if request.form.get("expireDate"):
                     expire_date = str(request.form.get("expireDate"))
@@ -232,6 +268,21 @@ def create_app():
             return redirect(url_for(".bills_to_pay"))
 
         return bills_to_pay(confirm_edit=True, bill=bill)
+
+    @app.route("/usuario", methods=["GET", "POST"])
+    @login_required
+    def user(confirm_edit=None, user=None, error=None):
+        if not user:
+            user_data = current_app.db.users.find_one(
+                {
+                    "$or": [
+                        {"email": session["email"]},
+                        {"_id": session["user_id"]},
+                    ]
+                }
+            )
+            user = User(**user_data)
+        return render_template("user.html", user=user, confirm_edit=confirm_edit, error=error)
 
     @app.get("/toggle-theme")
     def toggle_theme():
@@ -270,6 +321,158 @@ def create_app():
 
         return render_template("register.html", title="CoinCare - Registrar", form=form)
 
+    @app.route("/outras-rendas", methods=["GET", "POST"])
+    def receipts(confirm_delete=None, confirm_edit=None, receipt=None, error=None):
+        user_data = current_app.db.users.find_one({"email": session["email"]})
+        user = User(**user_data)
+        atual_month = get_month_name(datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+        if not receipt:
+            receipts_data = current_app.db.receipts.find(
+                {
+                    "_id": {"$in": user.receipts},
+                    "insertMonth": get_month_name(
+                        datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+                    ),
+                }
+            )
+            receipt = [Receipt(**receipt) for receipt in receipts_data]
+            for renda in receipt:
+                renda.receiptValue = (
+                    formata_reais(float(renda.receiptValue))
+                    if renda.receiptValue
+                    else renda.receiptValue
+                )
+
+        return render_template(
+            "receipts.html",
+            title="Coincare - Rendas",
+            receipt_data=receipt,
+            confirm_delete=confirm_delete,
+            confirm_edit=confirm_edit,
+            mes=atual_month,
+            error=error,
+        )
+
+    @app.route("/adicionar-renda", methods=["GET", "POST"])
+    @login_required
+    def add_receipt():
+        form = ReceiptForm()
+
+        if form.validate_on_submit():
+            insert_date = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+            insert_month = get_month_name(insert_date)
+            description = "" if not form.description.data else form.description.data
+            receipt = Receipt(
+                _id=uuid.uuid4().hex,
+                receiptName=form.receipt_name.data,
+                receiptValue=form.receipt_value.data,
+                description=description,
+                insertDate=insert_date,
+                insertMonth=insert_month,
+            )
+            current_app.db.receipts.insert_one(asdict(receipt))
+            current_app.db.users.update_one(
+                {"_id": session["user_id"]}, {"$push": {"receipts": receipt._id}}
+            )
+
+            return redirect(url_for(".receipts"))
+
+        return render_template(
+            "add_receipt.html", title="CoinCare - Adicionar Renda", form=form
+        )
+
+    @app.route("/renda/<string:_id>", methods=["GET", "POST"])
+    @login_required
+    def delete_receipt(_id: str):
+        if request.method == "POST":
+            operacao = request.form.get("operacao")
+            if operacao == "excluir":
+                current_app.db.receipts.delete_one({"_id": _id})
+                current_app.db.users.update_one(
+                    {"_id": session["user_id"]}, {"$pull": {"receipts": _id}}
+                )
+
+            return redirect(url_for(".receipts"))
+
+        return receipts(confirm_delete=True)
+
+    @app.route("/editar-renda/<string:_id>", methods=["GET", "POST"])
+    @login_required
+    def edit_receipt(_id: str):
+        operacao = request.form.get("operacao")
+        receipts_data = current_app.db.receipts.find({"_id": _id})
+        receipt = [Receipt(**receipt) for receipt in receipts_data]
+        if request.method == "POST":
+            if operacao == "Confirmar":
+                if request.form.get("receiptName"):
+                    current_app.db.receipts.update_one(
+                        {"_id": _id},
+                        {"$set": {"receiptName": request.form.get("receiptName")}},
+                    )
+                if request.form.get("receiptValue"):
+                    float_receipt = validate_float(request.form["receiptValue"])
+                    if type(float_receipt) == float:
+                        current_app.db.receipts.update_one(
+                            {"_id": _id},
+                            {"$set": {"receiptValue": request.form.get("receiptValue")}},
+                        )
+                    else:
+                        error = "O formato do valor em dinheiro é inválido"
+                        return receipts(confirm_edit=True, receipt=receipt, error=error)
+
+                current_app.db.receipts.update_one(
+                    {"_id": _id},
+                    {"$set": {"description": request.form.get("description")}},
+                )
+
+            return redirect(url_for(".receipts"))
+
+        return receipts(confirm_edit=True, receipt=receipt)
+
+    @app.route("/editar-usuario/<string:_id>", methods=["GET", "POST"])
+    @login_required
+    def edit_user(_id: str):
+        operacao = request.form.get("operacao")
+        user_data = current_app.db.users.find_one({"_id": _id})
+        _user = User(**user_data)
+        if request.method == "POST":
+            if operacao == "Confirmar":
+                if request.form.get("name"):
+                    current_app.db.users.update_one(
+                        {"_id": _id},
+                        {"$set": {"name": request.form.get("name")}},
+                    )
+
+                if request.form.get("email"):
+                    if request.form.get("email") != session["email"]:
+                        if current_app.db.users.find_one(
+                            {"email": request.form.get("email")}
+                        ):
+                            return user(confirm_edit=True, user=_user, error="Este e-mail já está em uso")
+
+                    session["email"] = request.form.get("email")
+                    current_app.db.users.update_one(
+                        {"_id": _id},
+                        {"$set": {"email": request.form.get("email")}},
+                    )
+                        
+
+                if request.form.get("income"):
+                    income = validate_float(request.form["income"])
+                    if type(income) == float:
+                        current_app.db.users.update_one(
+                            {"_id": _id},
+                            {"$set": {"income": income}},
+                        )
+                    else:
+                        error = "O formato do valor em dinheiro é inválido"
+                        return user(confirm_edit=True, user=_user, error=error)
+
+            return redirect(url_for(".user"))
+
+        return user(confirm_edit=True, user=_user)
+
+    @app.route("/adicionar-renda")
     @app.route("/logout")
     def logout():
         current_theme = session.get("theme")

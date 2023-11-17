@@ -40,3 +40,10 @@ class StringListField(TextAreaField):
 
 class ExtendedBillForm(BillForm):
     submit = SubmitField("Enviar")
+
+class ReceiptForm(FlaskForm):
+    receipt_name = StringField("Nome da renda", validators=[InputRequired(message="Esse campo é obrigatório")])
+    receipt_value = FloatField("Valor da renda", validators=[InputRequired(message="Esse campo é obrigatório")])
+    description = StringField("Descrição")
+    
+    submit = SubmitField("Registrar")
