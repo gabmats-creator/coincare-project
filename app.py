@@ -148,8 +148,6 @@ def create_app():
         bill = [Bill(**bill) for bill in bills_data]
         for conta in bill:
             conta.billValue = formata_reais(conta.billValue)
-            if conta.expireDate and conta.mensal:
-                conta.expireDate = get_expire_date(date=conta.expireDate)
         atual_month = get_month_name(datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
 
         return render_template(
