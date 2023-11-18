@@ -38,6 +38,19 @@ def create_app():
 
         return route_wrapper
 
+    def get_expire_date(day=None, date=None):
+        if day and int(day) < 10:
+            day = f"0{day}"
+
+        if date:
+            day = date.split("/")[0]
+
+        actual_date = datetime.now().strftime("%d/%m/%Y")
+        fields = actual_date.split("/")
+        fields[0] = str(day)
+        modified_date = "/".join(fields)
+        return modified_date
+
     def get_month_name(date):
         fields = date.split("/")
         month = fields[1]
@@ -135,6 +148,8 @@ def create_app():
         bill = [Bill(**bill) for bill in bills_data]
         for conta in bill:
             conta.billValue = formata_reais(conta.billValue)
+            if conta.expireDate and conta.mensal:
+                conta.expireDate = get_expire_date(date=conta.expireDate)
         atual_month = get_month_name(datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
 
         return render_template(
@@ -150,7 +165,13 @@ def create_app():
 
     @app.route("/contas", methods=["GET", "POST"])
     @login_required
-    def bills_to_pay(confirm_delete=None, confirm_edit=None, bill=None, error=None):
+    def bills_to_pay(
+        confirm_delete=None,
+        confirm_edit=None,
+        confirm_expire=None,
+        bill=None,
+        error=None,
+    ):
         user_data = current_app.db.users.find_one({"email": session["email"]})
         user = User(**user_data)
         atual_month = get_month_name(datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
@@ -163,10 +184,12 @@ def create_app():
             }
             bills_data = current_app.db.bills.find(
                 {"_id": {"$in": user.bills}, "$or": [cond1, cond2]}
-            )
+            ).sort("insertDate", -1)
             bill = [Bill(**bill) for bill in bills_data]
             for conta in bill:
                 conta.billValue = formata_reais(conta.billValue)
+                if conta.expireDate and conta.mensal:
+                    conta.expireDate = get_expire_date(date=conta.expireDate)
 
         return render_template(
             "bills_to_pay.html",
@@ -174,6 +197,7 @@ def create_app():
             bill_data=bill,
             confirm_delete=confirm_delete,
             confirm_edit=confirm_edit,
+            confirm_expire=confirm_expire,
             mes=atual_month,
             error=error,
         )
@@ -186,10 +210,6 @@ def create_app():
             return redirect(request.args.get("latest_url"))
 
         if form.validate_on_submit():
-            expire_date = str(form.expire_date.data)
-            expire_formatted = datetime.strptime(expire_date, "%Y-%m-%d").strftime(
-                "%d-%m-%Y"
-            )
             insertion_date = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
             insertion_month = get_month_name(insertion_date)
             description = "" if not form.description.data else form.description.data
@@ -197,7 +217,7 @@ def create_app():
                 _id=uuid.uuid4().hex,
                 billName=form.bill_name.data,
                 billValue=form.bill_value.data,
-                expireDate=expire_formatted,
+                expireDate="",
                 description=description,
                 insertDate=insertion_date,
                 insertMonth=insertion_month,
@@ -257,7 +277,7 @@ def create_app():
                     expire_date = str(request.form.get("expireDate"))
                     expire_formatted = datetime.strptime(
                         expire_date, "%Y-%m-%d"
-                    ).strftime("%d-%m-%Y")
+                    ).strftime("%d/%m/%Y")
                     current_app.db.bills.update_one(
                         {"_id": _id}, {"$set": {"expireDate": expire_formatted}}
                     )
@@ -270,6 +290,31 @@ def create_app():
             return redirect(url_for(".bills_to_pay"))
 
         return bills_to_pay(confirm_edit=True, bill=bill)
+
+    @app.route("/adicionar-vencimento/<string:_id>", methods=["GET", "POST"])
+    @login_required
+    def add_expire(_id: str):
+        operacao = request.form.get("operacao")
+        bills_data = current_app.db.bills.find({"_id": _id})
+        bill = [Bill(**bill) for bill in bills_data]
+        if request.method == "POST":
+            if operacao == "Confirmar":
+                if request.form.get("expireDate"):
+                    expire_date = str(request.form.get("expireDate"))
+                    expire_formatted = datetime.strptime(
+                        expire_date, "%Y-%m-%d"
+                    ).strftime("%d/%m/%Y")
+                    current_app.db.bills.update_one(
+                        {"_id": _id}, {"$set": {"expireDate": expire_formatted}}
+                    )
+                elif request.form.get("expireDay"):
+                    expire_date = get_expire_date(day=request.form["expireDay"])
+                    current_app.db.bills.update_one(
+                        {"_id": _id}, {"$set": {"expireDate": expire_date}}
+                    )
+            return redirect(url_for(".bills_to_pay"))
+
+        return bills_to_pay(confirm_expire=True, bill=bill)
 
     @app.route("/usuario", methods=["GET", "POST"])
     @login_required

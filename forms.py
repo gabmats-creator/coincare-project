@@ -20,10 +20,6 @@ class BillForm(FlaskForm):
     bill_value = FloatField(
         "Valor da conta", validators=[InputRequired(message="Esse campo é obrigatório")]
     )
-    expire_date = DateField(
-        "Data de vencimento",
-        validators=[InputRequired(message="Esse campo é obrigatório")],
-    )
     description = StringField("Descrição")
 
     opcoes = [("", "Selecione uma opção"), ("mensal", "Mensal"), ("uma vez", "Uma vez")]
