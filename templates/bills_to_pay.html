@@ -1,105 +1,118 @@
-{% from "macros/svgs.html" import trash, pencil %}
+{% from "macros/svgs.html" import trash, pencil, edit %}
 {% from "macros/fields.html" import render_text_field %}
 
 {% extends "layout.html" %}
 
 {% block head_content %}
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bills.css') }}">
 {% endblock %}
 
 {% block main_content %}
-    <h1>Todas as contas do mês de {{ mes }}</h1>
-    {% if bill_data %}
-        <table class="table">
-            <colgroup>
-                <col style="width: 20%">
-                <col style="width: 20%">
-                <col style="width: 20%">
-                <col style="width: 20%">
-                <col style="width: 20%">
-            </colgroup>
-            
-            <thead>
-                <th class="table__cell table__cell--header">Nome da Conta</th>
-                <th class="table__cell table__cell--header">Valor</th>
-                <th class="table__cell table__cell--header">Data de vencimento</th>
-                <th class="table__cell table__cell--header">Descrição</th>
-                <th class="table__cell table__cell--header"></th>
-                <th class="table__cell table__cell--header"></th>
-            </thead>
-            <tbody>
-                {% for bill in bill_data %}
-                    <tr>
-                        <td class="table__cell">
-                            <p class="table__billname">{{ bill.billName }}</p>
-                        </td>
-                        <td class="table__cell">{{ bill.billValue }}</td>
-                        <td class="table__cell">{{ bill.expireDate }}</td>
-                        <td class="table__cell">{{ bill.description}}</td>
-                        <td class="table__cell"><a class="bill__edit" href="{{ url_for('edit_bill', _id=bill._id) }}">{{ pencil("pencil") }}</a></td>
+    <div class="container">
+        <div class="row p-3">
+            <div class="col-md-9">
+                <h1>Todas as contas de {{ mes }}</h1>
+            </div>
+            <div class="col-md-3">
+                <a
+                    href="{{ url_for('add_bill') }}" 
+                    class="button button--add pt-1"
+                >
+                <span>Adicionar Conta</span>
+                </a>
+            </div>
+        </div>
+
+        {% if confirm_delete %}
+            <div class="overlay" id="overlay"></div>
+            </div>
+
+            <div class="popup" id="popup">
+                <h2>Deseja excluir esta conta?</h2>
+                <p>Esta ação é definitiva</p>
+                <div class="row text-center align-middle">
+                    <div class="col-lg-4 offset-lg-2">
+                        <form method="POST">
+                            <input type="hidden" name="operacao" value="excluir">
+                            <button type="submit">Confirmar</button>
+                        </form>
+                    </div>
+                    <div class="col-lg-4">
+                        <form method="POST">
+                            <input type="hidden" name="operacao" value="cancelar">
+                            <button type="submit">Cancelar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        {% if confirm_edit %}
+            <div class="overlay" id="overlay"></div>
+            <div class="popup text-center align-middle" id="popup">
+                <h2>Editar dados</h2>
+                <p>insira apenas os campos que você deseja alterar</p>
+                <div class="row">
+                    {% for bill in bill_data %}
+                    <form method="POST">
+                        <label for="billName">Nome da conta</label>
+                        <input id="billName" type="text" value="{{ bill.billName }}" name="billName" placeholder="Novo nome da conta">
+                        <label for="billValue">Valor</label>
+                        <input id="billValue" type="number" value="{{ bill.billValue }}" name="billValue" placeholder="Novo valor">
+                        <label for="expireDate">Vencimento</label>
+                        <input id="expireDate" type="date" value="{{ bill.expireDate }}" name="expireDate" placeholder="Novo vencimento">
+                        <label for="description">Descrição</label>
+                        <input id="description" type="text" value="{{ bill.description }}" name="description" placeholder="Nova descrição">
                         
-                        <td class="table__cell">
-                            <a href="{{ url_for('delete_bill', _id=bill._id) }}" class="table__link" id="mostrarPopup">Excluir</a>
-                        </td>
-                    </tr>
+                        <div class="pt-5">
+                            <input  type="hidden" name="operacao" value="Confirmar">
+                            <button type="submit">Confirmar</button>
+                        </div>
+                    </form>
                 {% endfor %}
-            </tbody>
-        </table>
-    {% else %}
-        <p class="table__empty">Você ainda não possui nenhuma conta a pagar, deseja <a href="{{ url_for('add_bill') }}" class="link">adicionar uma conta</a>?</p>
-    {% endif %}
+                </div>
+                <div class="pt-2">
+                    <form method="POST">
+                        <input type="hidden" name="operacao" value="cancelar">
+                        <button type="submit">Cancelar</button>
+                    </form>
+                </div>
+            </div>
+        {% endif %}
 
-    <a
-        href="{{ url_for('add_bill') }}" 
-        class="button button--add"
-    >
-    <span>+</span>
-    </a>
-
-    {% if confirm_delete %}
-        <div class="overlay" id="overlay"></div>
+        <div class="row p-5">
+            {% if bill_data %}
+                <table class="table text-center align-middle">          
+                    <thead>
+                        <th class="table__cell table__cell--header">Nome da Conta</th>
+                        <th class="table__cell table__cell--header">Valor</th>
+                        <th class="table__cell table__cell--header">Data de vencimento</th>
+                        <th class="table__cell table__cell--header">Descrição</th>
+                        <th class="table__cell table__cell--header"></th>
+                        <th class="table__cell table__cell--header"></th>
+                    </thead>
+                    <tbody>
+                        {% for bill in bill_data %}
+                            <tr>
+                                <td class="table__cell">
+                                    <p class="table__billname pt-3">{{ bill.billName }}</p>
+                                </td>
+                                <td class="table__cell pt-3">{{ bill.billValue }}</td>
+                                <td class="table__cell pt-3">{{ bill.expireDate }}</td>
+                                <td class="table__cell pt-3">{{ bill.description}}</td>
+                                <td class="table__cell pt-3"><a class="bill__edit" href="{{ url_for('edit_bill', _id=bill._id) }}">{{ edit("edit") }} Editar</a></td>
+                                <td class="table__cell pt-3"><a class="bill__edit" href="{{ url_for('delete_bill', _id=bill._id) }}">{{ trash("trash") }} Excluir</a></td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="table__empty">Você ainda não possui nenhuma conta a pagar, deseja <a href="{{ url_for('add_bill') }}" class="link">adicionar uma conta</a>?</p>
+            {% endif %}
         </div>
-
-        <div class="popup" id="popup">
-            <h2>Deseja excluir esta conta?</h2>
-            <p>Esta ação é definitiva</p>
-            <form method="POST">
-                <input type="hidden" name="operacao" value="excluir">
-                <button type="submit">Confirmar</button>
-            </form>
-            <form method="POST">
-                <input type="hidden" name="operacao" value="cancelar">
-                <button type="submit">Cancelar</button>
-            </form>
-        </div>
-    {% endif %}
-
-    {% if confirm_edit %}
-        <div class="overlay" id="overlay"></div>
-        <div class="popup" id="popup">
-            <h2>Editar dados</h2>
-            <p>insira apenas os campos que você deseja alterar</p>
-            {% for bill in bill_data %}
-                <form method="POST">
-                    <label for="billName">Nome da conta</label>
-                    <input id="billName" type="text" value="{{ bill.billName }}" name="billName" placeholder="Novo nome da conta">
-                    <label for="billValue">Valor</label>
-                    <input id="billValue" type="number" value="{{ bill.billValue }}" name="billValue" placeholder="Novo valor">
-                    <label for="expireDate">Vencimento</label>
-                    <input id="expireDate" type="date" value="{{ bill.expireDate }}" name="expireDate" placeholder="Novo vencimento">
-                    <label for="description">Descrição</label>
-                    <input id="description" type="text" value="{{ bill.description }}" name="description" placeholder="Nova descrição">
-                    <input  type="hidden" name="operacao" value="Confirmar">
-                        <button type="submit">Confirmar</button>
-                </form>
-            {% endfor %}
-            
-            <form method="POST">
-                <input type="hidden" name="operacao" value="cancelar">
-                <button type="submit">Cancelar</button>
-            </form>
-        </div>
-    
-    {% endif %}
+    </div>
 
 {% endblock %}
