@@ -108,4 +108,9 @@ class ReceiptForm(FlaskForm):
     )
     description = StringField("Descrição")
 
-    submit = SubmitField("Registrar")
+    submit = SubmitField(
+        "Confirmar", render_kw={"value": "Confirmar"}
+    )
+    cancel = SubmitField(
+        "Cancelar", render_kw={"value": "Cancelar"}
+    )
