@@ -65,8 +65,10 @@
                         <input id="billName" type="text" value="{{ bill.billName }}" name="billName" placeholder="Novo nome da conta">
                         <label for="billValue">Valor</label>
                         <input id="billValue" type="float" value="{{ bill.billValue }}" name="billValue" placeholder="Novo valor">
-                        <label for="expireDate">Vencimento</label>
-                        <input id="expireDate" type="date" value="{{ bill.expireDate }}" name="expireDate" placeholder="Novo vencimento">
+                        {% if bill.expireDate %}
+                            <label for="expireDate">Vencimento</label>
+                            <input id="expireDate" type="date" value="{{ bill.expireDate }}" name="expireDate" placeholder="Novo vencimento">
+                        {% endif %}
                         <label for="description">Descrição</label>
                         <input id="description" type="text" value="{{ bill.description }}" name="description" placeholder="Nova descrição">
                         
