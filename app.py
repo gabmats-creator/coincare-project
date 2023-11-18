@@ -282,6 +282,7 @@ def create_app():
                 }
             )
             user = User(**user_data)
+            user.income = formata_reais(user.income)
         return render_template("user.html", user=user, confirm_edit=confirm_edit, error=error)
 
     @app.get("/toggle-theme")
