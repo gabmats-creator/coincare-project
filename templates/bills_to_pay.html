@@ -65,8 +65,10 @@
                         <input id="billName" type="text" value="{{ bill.billName }}" name="billName" placeholder="Novo nome da conta">
                         <label for="billValue">Valor</label>
                         <input id="billValue" type="float" value="{{ bill.billValue }}" name="billValue" placeholder="Novo valor">
-                        <label for="expireDate">Vencimento</label>
-                        <input id="expireDate" type="date" value="{{ bill.expireDate }}" name="expireDate" placeholder="Novo vencimento">
+                        {% if bill.expireDate %}
+                            <label for="expireDate">Vencimento</label>
+                            <input id="expireDate" type="date" value="{{ bill.expireDate }}" name="expireDate" placeholder="Novo vencimento">
+                        {% endif %}
                         <label for="description">Descrição</label>
                         <input id="description" type="text" value="{{ bill.description }}" name="description" placeholder="Nova descrição">
                         
@@ -83,6 +85,46 @@
                         <button type="submit">Cancelar</button>
                     </form>
                 </div>
+            </div>
+        {% endif %}
+
+        {% if confirm_expire %}
+            <div class="overlay" id="overlay"></div>
+                <div class="popup text-center align-middle" id="popup">
+                    {% if error %}
+                <p style="color: red;">{{ error }}</p>
+                {% endif %}
+                <h2>Inserir Vencimento</h2>
+                    <div class="row">
+                        {% for bill in bill_data %}
+                        <form method="POST">
+                            {% if bill.mensal %}
+                                <p>Esta conta é mensal, informe o dia de vencimento</p>
+                                <label for="expireDay">Todo dia:</label>
+                                <select id="expireDay" name="expireDay" required>
+                                    {% for i in range(1, 31) %}
+                                        <option value="{{ i }}">{{ i }}</option>
+                                    {% endfor %}
+                                </select>
+                            {% else %}
+                                <p>Informe o vencimento desta conta</p>
+                                <label for="expireDate">Vencimento</label>
+                                <input id="expireDate" type="date" name="expireDate" placeholder="Vencimento">
+                            {% endif %}
+                            
+                            <div class="pt-5">
+                                <input  type="hidden" name="operacao" value="Confirmar">
+                                <button type="submit">Confirmar</button>
+                            </div>
+                        </form>
+                    {% endfor %}
+                    </div>
+                    <div class="pt-2">
+                        <form method="POST">
+                            <input type="hidden" name="operacao" value="cancelar">
+                            <button type="submit">Cancelar</button>
+                        </form>
+                    </div>
             </div>
         {% endif %}
 
@@ -108,6 +150,9 @@
                                 <td class="table__cell pt-3">{{ bill.description}}</td>
                                 <td class="table__cell pt-3"><a class="bill__edit" href="{{ url_for('edit_bill', _id=bill._id) }}">{{ edit("edit") }} Editar</a></td>
                                 <td class="table__cell pt-3"><a class="bill__edit" href="{{ url_for('delete_bill', _id=bill._id) }}">{{ trash("trash") }} Excluir</a></td>
+                                {% if not bill.expireDate %}
+                                <td class="table__cell pt-3"><a class="bill__edit" href="{{ url_for('add_expire', _id=bill._id) }}">Adicionar vencimento</a></td>
+                                {% endif %}
                             </tr>
                         {% endfor %}
                     </tbody>
