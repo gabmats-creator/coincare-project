@@ -184,7 +184,7 @@ def create_app():
         form = BillForm()
         if request.method == "POST" and request.form.get("cancel"):
             return redirect(request.args.get("latest_url"))
-        
+
         if form.validate_on_submit():
             expire_date = str(form.expire_date.data)
             expire_formatted = datetime.strptime(expire_date, "%Y-%m-%d").strftime(
@@ -362,6 +362,8 @@ def create_app():
     @login_required
     def add_receipt():
         form = ReceiptForm()
+        if request.method == "POST" and request.form.get("cancel"):
+            return redirect(request.args.get("latest_url"))
 
         if form.validate_on_submit():
             insert_date = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
@@ -380,7 +382,7 @@ def create_app():
                 {"_id": session["user_id"]}, {"$push": {"receipts": receipt._id}}
             )
 
-            return redirect(url_for(".receipts"))
+            return redirect(request.args.get("latest_url"))
 
         return render_template(
             "add_receipt.html", title="CoinCare - Adicionar Renda", form=form

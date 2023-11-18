@@ -46,11 +46,11 @@
             </tbody>
         </table>
     {% else %}
-        <p class="table__empty">Você ainda não possui nenhuma conta a pagar, deseja <a href="{{ url_for('add_receipt') }}" class="link">adicionar uma renda</a>?</p>
+        <p class="table__empty">Você ainda não possui nenhuma conta a pagar, deseja <a href="{{ url_for('add_receipt', latest_url=request.url) }}" class="link">adicionar uma renda</a>?</p>
     {% endif %}
 
     <a
-        href="{{ url_for('add_receipt') }}" 
+        href="{{ url_for('add_receipt', latest_url=request.url) }}" 
         class="button button--add"
     >
     <span>+</span>
