@@ -66,7 +66,7 @@ def create_app():
 
             return float_value
         except ValueError:
-            return 'Erro: Certifique-se de inserir um número válido.'
+            return "Erro: Certifique-se de inserir um número válido."
 
     def formata_reais(valor):
         valor_formatado = f"R$ {float(valor):.2f}"
@@ -178,11 +178,13 @@ def create_app():
             error=error,
         )
 
-    @app.route("/add", methods=["GET", "POST"])
+    @app.route("/add/", methods=["GET", "POST"])
     @login_required
     def add_bill():
         form = BillForm()
-
+        if request.method == "POST" and request.form.get("cancel"):
+            return redirect(request.args.get("latest_url"))
+        
         if form.validate_on_submit():
             expire_date = str(form.expire_date.data)
             expire_formatted = datetime.strptime(expire_date, "%Y-%m-%d").strftime(
@@ -206,7 +208,7 @@ def create_app():
                 {"_id": session["user_id"]}, {"$push": {"bills": bill._id}}
             )
 
-            return redirect(url_for(".index"))
+            return redirect(request.args.get("latest_url"))
 
         return render_template(
             "new_bill.html", title="CoinCare - Adicionar Conta", form=form
@@ -245,7 +247,7 @@ def create_app():
                     else:
                         error = "O formato do valor em dinheiro é inválido"
                         return bills_to_pay(confirm_edit=True, bill=bill, error=error)
-                    
+
                 if request.form.get("billName"):
                     current_app.db.bills.update_one(
                         {"_id": _id},
@@ -283,7 +285,9 @@ def create_app():
             )
             user = User(**user_data)
             user.income = formata_reais(user.income)
-        return render_template("user.html", user=user, confirm_edit=confirm_edit, error=error)
+        return render_template(
+            "user.html", user=user, confirm_edit=confirm_edit, error=error
+        )
 
     @app.get("/toggle-theme")
     def toggle_theme():
@@ -415,7 +419,11 @@ def create_app():
                     if type(float_receipt) == float:
                         current_app.db.receipts.update_one(
                             {"_id": _id},
-                            {"$set": {"receiptValue": request.form.get("receiptValue")}},
+                            {
+                                "$set": {
+                                    "receiptValue": request.form.get("receiptValue")
+                                }
+                            },
                         )
                     else:
                         error = "O formato do valor em dinheiro é inválido"
@@ -449,14 +457,17 @@ def create_app():
                         if current_app.db.users.find_one(
                             {"email": request.form.get("email")}
                         ):
-                            return user(confirm_edit=True, user=_user, error="Este e-mail já está em uso")
+                            return user(
+                                confirm_edit=True,
+                                user=_user,
+                                error="Este e-mail já está em uso",
+                            )
 
                     session["email"] = request.form.get("email")
                     current_app.db.users.update_one(
                         {"_id": _id},
                         {"$set": {"email": request.form.get("email")}},
                     )
-                        
 
                 if request.form.get("income"):
                     income = validate_float(request.form["income"])

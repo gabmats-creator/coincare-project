@@ -17,7 +17,7 @@
             <div class="col-lg-3">
                 <div class="col">
                     <a
-                        href="{{ url_for('add_bill') }}" 
+                        href="{{ url_for('add_bill', latest_url=request.url) }}" 
                         class="nav__link pt-4 pb-4 bill__icon"
                     >
                         <span class="col-2">{{ bill("bill") }}</span><span class="nav__item col-10">Adicionar Conta</span>
@@ -76,7 +76,7 @@
                         </tbody>
                     </table>
                 {% else %}
-                    <p class="table__empty">Não há contas recentes a exibir, <a class="table__link" href="{{ url_for('add_bill') }}" >adicione uma nova conta</a> para poder visualizá-la</p>
+                    <p class="table__empty">Não há contas recentes a exibir, <a class="table__link" href="{{ url_for('add_bill', latest_url=request.url) }}" >adicione uma nova conta</a> para poder visualizá-la</p>
                 {% endif %}
             </div>
         </div>    

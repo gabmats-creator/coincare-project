@@ -18,7 +18,7 @@
             </div>
             <div class="col-md-3">
                 <a
-                    href="{{ url_for('add_bill') }}" 
+                    href="{{ url_for('add_bill', latest_url=request.url) }}" 
                     class="button button--add pt-1"
                 >
                 <span>Adicionar Conta</span>
@@ -113,7 +113,7 @@
                     </tbody>
                 </table>
             {% else %}
-                <p class="table__empty">Você ainda não possui nenhuma conta a pagar, deseja <a href="{{ url_for('add_bill') }}" class="link">adicionar uma conta</a>?</p>
+                <p class="table__empty">Você ainda não possui nenhuma conta a pagar, deseja <a href="{{ url_for('add_bill', latest_url=request.url) }}" class="link">adicionar uma conta</a>?</p>
             {% endif %}
         </div>
     </div>
