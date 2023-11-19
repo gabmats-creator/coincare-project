@@ -62,3 +62,6 @@
 .button--form:hover {
     background: var(--background-color-hover);
 }
+.form__error{
+    color: red;
+}
