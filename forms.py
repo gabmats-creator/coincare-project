@@ -24,12 +24,8 @@ class BillForm(FlaskForm):
 
     opcoes = [("", "Selecione uma opção"), ("mensal", "Mensal"), ("uma vez", "Uma vez")]
     frequence = SelectField("Recorrência", choices=opcoes)
-    submit = SubmitField(
-        "Confirmar", render_kw={"value": "Confirmar"}
-    )
-    cancel = SubmitField(
-        "Cancelar", render_kw={"value": "Cancelar"}
-    )
+    submit = SubmitField("Confirmar", render_kw={"value": "Confirmar"})
+    cancel = SubmitField("Cancelar", render_kw={"value": "Cancelar"})
 
 
 class RegisterForm(FlaskForm):
@@ -77,24 +73,6 @@ class LoginForm(FlaskForm):
     submit = SubmitField("Fazer login")
 
 
-class StringListField(TextAreaField):
-    def _value(self):
-        if self.data:
-            return "\n".join(self.data)
-        else:
-            return ""
-
-    def process_formdata(self, valuelist):
-        if valuelist and valuelist[0]:
-            self.data = [line.strip() for line in valuelist[0].split("\n")]
-        else:
-            self.data = []
-
-
-class ExtendedBillForm(BillForm):
-    submit = SubmitField("Enviar")
-
-
 class ReceiptForm(FlaskForm):
     receipt_name = StringField(
         "Nome da renda", validators=[InputRequired(message="Esse campo é obrigatório")]
@@ -104,9 +82,5 @@ class ReceiptForm(FlaskForm):
     )
     description = StringField("Descrição")
 
-    submit = SubmitField(
-        "Confirmar", render_kw={"value": "Confirmar"}
-    )
-    cancel = SubmitField(
-        "Cancelar", render_kw={"value": "Cancelar"}
-    )
+    submit = SubmitField("Confirmar", render_kw={"value": "Confirmar"})
+    cancel = SubmitField("Cancelar", render_kw={"value": "Cancelar"})
