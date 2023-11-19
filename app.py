@@ -240,7 +240,7 @@ def create_app():
             if operacao == "excluir":
                 current_app.db.bills.delete_one({"_id": _id})
                 current_app.db.users.update_one(
-                    {"_id": session["user_id"]}, {"$pull": {"receipts": _id}}
+                    {"_id": session["user_id"]}, {"$pull": {"bills": _id}}
                 )
 
             return redirect(url_for(".bills_to_pay"))
