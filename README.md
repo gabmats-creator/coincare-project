@@ -22,6 +22,7 @@ Documento na íntegra: [Projeto de Extensão UniFil - Cubo](https://docs.google.
 
 Clone o repositório em sua máquina.
 Siga os comandos abaixo para Windows:
+
 Passo 1: Crie um ambiente virtual na raíz do seu repositório.
 ```
 python -m venv .venv
