@@ -83,7 +83,8 @@ def create_app():
 
     def formata_reais(valor):
         valor_formatado = f"R$ {float(valor):.2f}"
-        return re.sub(re.escape("."), ",", valor_formatado)
+        valor_formatado = re.sub(re.escape("."), ",", valor_formatado)
+        return re.sub(r'(\d)(?=(\d{3})+(?!\d))', r'\1.', valor_formatado)
 
     def calc_free_value(user):
         cond1 = {"mensal": True}

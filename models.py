@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from typing import List
 
 @dataclass
 class Bill:
@@ -18,8 +19,8 @@ class User:
     email: str
     income: float
     password: str
-    bills: list[str] = field(default_factory=list)
-    receipts: list[str] = field(default_factory=list)
+    bills: List[str] = field(default_factory=list)
+    receipts: List[str] = field(default_factory=list)
 
 @dataclass
 class Receipt:
