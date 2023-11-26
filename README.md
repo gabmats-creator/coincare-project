@@ -19,6 +19,8 @@ O projeto de extensão é uma atividade curricular oferecida para os cursos de E
 Documento na íntegra: [Projeto de Extensão UniFil - Cubo](https://docs.google.com/document/d/169PibmynKCcZhM1oKnCRAR10SbHl01TeWkopNKGw3MU/edit#heading=h.9512hjsqn9fc)
 
 ## Passos para Rodar o Projeto:
+(Vale ressaltar que sem permissão ao banco de dados, você não irá conseguir criar contas/realizar acesso localmente)
+Sendo assim, disponibilizamos uma prévia do projeto em: [CoinCare](https://coincare.onrender.com/)
 
 Clone o repositório em sua máquina.
 Siga os comandos abaixo para Windows:
@@ -39,7 +41,6 @@ Passo 4: Rode o projeto.
 ```
 flask run
 ```
-Uma prévia do nosso projeto está disponível em: [CoinCare](https://coincare.onrender.com/)
 
 
 
