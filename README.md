@@ -39,7 +39,7 @@ Passo 4: Rode o projeto.
 ```
 flask run
 ```
-
+Uma prévia do nosso projeto está disponível em: [CoinCare](https://coincare.onrender.com/)
 
 
 
