@@ -24,6 +24,14 @@
                 <span>Adicionar Conta</span>
                 </a>
             </div>
+            <div class="col-md-4">
+                <a
+                    href="{{ url_for('pdf_bills', latest_url=request.url) }}" 
+                    class="button button--add pt-1"
+                >
+                <span>Imprimir relatório</span>
+                </a>
+            </div>
         </div>
 
         {% if confirm_delete %}

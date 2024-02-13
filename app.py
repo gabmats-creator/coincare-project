@@ -7,6 +7,7 @@ from flask import (
     redirect,
     flash,
     current_app,
+    send_file,
 )
 from dataclasses import asdict
 from forms import BillForm, RegisterForm, LoginForm, ReceiptForm
@@ -14,6 +15,7 @@ from models import Bill, User, Receipt
 from pymongo import MongoClient
 from passlib.hash import pbkdf2_sha256
 from datetime import datetime
+from reportlab.pdfgen import canvas
 import uuid
 import functools
 import os
@@ -84,7 +86,7 @@ def create_app():
     def formata_reais(valor):
         valor_formatado = f"R$ {float(valor):.2f}"
         valor_formatado = re.sub(re.escape("."), ",", valor_formatado)
-        return re.sub(r'(\d)(?=(\d{3})+(?!\d))', r'\1.', valor_formatado)
+        return re.sub(r"(\d)(?=(\d{3})+(?!\d))", r"\1.", valor_formatado)
 
     def calc_free_value(user):
         cond1 = {"mensal": True}
@@ -162,6 +164,27 @@ def create_app():
             mes=atual_month,
         )
 
+    @app.route("/printPDF", methods=["GET"])
+    @login_required
+    def pdf_bills():
+        user_data = current_app.db.users.find_one({"email": session["email"]})
+        user = User(**user_data)
+        cond1 = {"mensal": True}
+        cond2 = {
+            "insertMonth": get_month_name(
+                datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+            )
+        }
+        bills_data = current_app.db.bills.find(
+            {"_id": {"$in": user.bills}, "$or": [cond1, cond2]}
+        ).sort("insertDate", -1)
+        bill = [Bill(**bill) for bill in bills_data]
+        c = canvas.Canvas("hello-world.pdf")
+        c.drawString(100, 100, "Teste relatório")
+        c.save()
+        print(c)
+        return send_file("hello-world.pdf", as_attachment=True)
+
     @app.route("/contas", methods=["GET", "POST"])
     @login_required
     def bills_to_pay(
@@ -206,7 +229,11 @@ def create_app():
     def add_bill():
         form = BillForm()
         if request.method == "POST" and request.form.get("cancel"):
-            return redirect(request.args.get("latest_url")) if request.args.get("latest_url") else redirect(url_for(".index"))
+            return (
+                redirect(request.args.get("latest_url"))
+                if request.args.get("latest_url")
+                else redirect(url_for(".index"))
+            )
 
         if form.validate_on_submit():
             insertion_date = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
@@ -227,7 +254,11 @@ def create_app():
                 {"_id": session["user_id"]}, {"$push": {"bills": bill._id}}
             )
 
-            return redirect(request.args.get("latest_url")) if request.args.get("latest_url") else redirect(url_for(".index"))
+            return (
+                redirect(request.args.get("latest_url"))
+                if request.args.get("latest_url")
+                else redirect(url_for(".index"))
+            )
 
         return render_template(
             "new_bill.html", title="CoinCare - Adicionar Conta", form=form
@@ -407,7 +438,11 @@ def create_app():
     def add_receipt():
         form = ReceiptForm()
         if request.method == "POST" and request.form.get("cancel"):
-            return redirect(request.args.get("latest_url")) if request.args.get("latest_url") else redirect(url_for(".receipts"))
+            return (
+                redirect(request.args.get("latest_url"))
+                if request.args.get("latest_url")
+                else redirect(url_for(".receipts"))
+            )
 
         if form.validate_on_submit():
             insert_date = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
@@ -426,7 +461,11 @@ def create_app():
                 {"_id": session["user_id"]}, {"$push": {"receipts": receipt._id}}
             )
 
-            return redirect(request.args.get("latest_url")) if request.args.get("latest_url") else redirect(url_for(".receipts"))
+            return (
+                redirect(request.args.get("latest_url"))
+                if request.args.get("latest_url")
+                else redirect(url_for(".receipts"))
+            )
 
         return render_template(
             "add_receipt.html", title="CoinCare - Adicionar Renda", form=form
