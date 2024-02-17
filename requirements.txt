@@ -8,3 +8,4 @@ flask-wtf
 flask-security
 email_validator
 passlib
+reportlab

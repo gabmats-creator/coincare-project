@@ -39,7 +39,7 @@
     
             <div class="col-lg-8 p-2">
                 <h1 class="pb-2">Olá, {{ user_name }}</h1>
-                <p>Seu saldo para esse mês de {{ mes }} é de <strong style="color: #28b728;">{{ user_income }}</strong></p>
+                <p>Seu saldo para o mês de {{ mes }} é de <strong style="color: #28b728;">{{ user_income }}</strong></p>
                 {% if negative %}
                     <p>Atualmente, você possui <strong style="color: #ec2020;">{{ free_value }}</strong> de saldo negativo</p>
                 {% else %}
