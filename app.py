@@ -305,10 +305,11 @@ def create_app():
         if request.method == "POST":
             operacao = request.form.get("operacao")
             if operacao == "excluir":
-                current_app.db.bills.delete_one({"_id": _id})
                 current_app.db.users.update_one(
-                    {"_id": session["user_id"]}, {"$pull": {"bills": _id}}
+                    {"_id": session["user_id"]},
+                    {"$pull": {"bills": _id}}
                 )
+                current_app.db.bills.delete_one({"_id": _id})
 
             return redirect(url_for(".bills_to_pay"))
 
@@ -324,7 +325,7 @@ def create_app():
             if operacao == "Confirmar":
                 if request.form.get("billValue"):
                     float_value = validate_float(request.form["billValue"])
-                    if type(float_value) == float:
+                    if isinstance(float_value, float):
                         current_app.db.bills.update_one(
                             {"_id": _id},
                             {"$set": {"billValue": float_value}},
@@ -536,7 +537,7 @@ def create_app():
                     )
                 if request.form.get("receiptValue"):
                     float_receipt = validate_float(request.form["receiptValue"])
-                    if type(float_receipt) == float:
+                    if isinstance(float_receipt, float):
                         current_app.db.receipts.update_one(
                             {"_id": _id},
                             {
@@ -591,7 +592,7 @@ def create_app():
 
                 if request.form.get("income"):
                     income = validate_float(request.form["income"])
-                    if type(income) == float:
+                    if isinstance(income, float) == float:
                         current_app.db.users.update_one(
                             {"_id": _id},
                             {"$set": {"income": income}},
