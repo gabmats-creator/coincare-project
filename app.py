@@ -14,8 +14,7 @@ from forms import BillForm, RegisterForm, LoginForm, ReceiptForm
 from models import Bill, User, Receipt
 from pymongo import MongoClient
 from passlib.hash import pbkdf2_sha256
-from datetime import datetime
-from reportlab.pdfgen import canvas
+from datetime import datetime, timedelta
 import uuid
 import functools
 import os
@@ -52,6 +51,46 @@ def create_app():
         fields[0] = str(day)
         modified_date = "/".join(fields)
         return modified_date
+
+    def get_filter_information(options):
+        match options:
+            case "Qualquer período":
+                return "Todas as contas cadastradas"
+            case "Este ano":
+                atual_year = datetime.now().year
+                return f"Todas as contas de {atual_year}"
+            case "Últimos 7 dias":
+                first_date = datetime.now() - timedelta(days=7)
+                first_date = first_date.strftime("%d/%m/%Y")
+                return f"Todas as contas desde {first_date}"
+            case _:
+                atual_month = get_month_name(
+                    datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+                )
+                return f"Todas as contas de {atual_month}"
+
+    def get_conditionals(options):
+        match options:
+            case "Qualquer período":
+                return []
+            case "Este ano":
+                atual_year = datetime.now().year
+                print("ano atual===", atual_year)
+                regex_pattern = re.compile(rf"\b{atual_year}\b")
+                return [{"mensal": True}, {"insertDate": {"$regex": regex_pattern}}]
+            case "Últimos 7 dias":
+                first_date = datetime.now() - timedelta(days=7)
+                first_date = first_date.strftime("%d/%m/%Y %H:%M:%S")
+                return {"$gte": first_date}
+            case _:
+                return [
+                    {"mensal": True},
+                    {
+                        "insertMonth": get_month_name(
+                            datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+                        )
+                    },
+                ]
 
     def get_month_name(date):
         fields = date.split("/")
@@ -164,27 +203,6 @@ def create_app():
             mes=atual_month,
         )
 
-    @app.route("/printPDF", methods=["GET"])
-    @login_required
-    def pdf_bills():
-        user_data = current_app.db.users.find_one({"email": session["email"]})
-        user = User(**user_data)
-        cond1 = {"mensal": True}
-        cond2 = {
-            "insertMonth": get_month_name(
-                datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-            )
-        }
-        bills_data = current_app.db.bills.find(
-            {"_id": {"$in": user.bills}, "$or": [cond1, cond2]}
-        ).sort("insertDate", -1)
-        bill = [Bill(**bill) for bill in bills_data]
-        c = canvas.Canvas("hello-world.pdf")
-        c.drawString(100, 100, "Teste relatório")
-        c.save()
-        print(c)
-        return send_file("hello-world.pdf", as_attachment=True)
-
     @app.route("/contas", methods=["GET", "POST"])
     @login_required
     def bills_to_pay(
@@ -194,19 +212,34 @@ def create_app():
         bill=None,
         error=None,
     ):
+        opcoes = ["Este mês", "Este ano", "Últimos 7 dias", "Qualquer período"]
+        selected_option = request.form.get("escolhaOpcao")
+        not_found_message = None
+
+        if selected_option:
+            opcoes.remove(selected_option)
+            opcoes.insert(0, selected_option)
+            not_found_message = (
+                "Nenhuma conta encontrada no período"
+                if selected_option != "Este mês"
+                else None
+            )
+
         user_data = current_app.db.users.find_one({"email": session["email"]})
         user = User(**user_data)
-        atual_month = get_month_name(datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+        filter_information = get_filter_information(selected_option)
         if not bill:
-            cond1 = {"mensal": True}
-            cond2 = {
-                "insertMonth": get_month_name(
-                    datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-                )
-            }
-            bills_data = current_app.db.bills.find(
-                {"_id": {"$in": user.bills}, "$or": [cond1, cond2]}
-            ).sort("insertDate", -1)
+            conditionals = get_conditionals(selected_option)
+            base_query = {"_id": {"$in": user.bills}}
+
+            if conditionals:
+                if isinstance(conditionals, list):
+                    base_query = {"_id": {"$in": user.bills}, "$or": conditionals}
+                else:
+                    base_query["insertDate"] = conditionals
+
+            bills_data = current_app.db.bills.find(base_query).sort("insertDate", -1)
+
             bill = [Bill(**bill) for bill in bills_data]
             for conta in bill:
                 conta.billValue = formata_reais(conta.billValue)
@@ -220,8 +253,10 @@ def create_app():
             confirm_delete=confirm_delete,
             confirm_edit=confirm_edit,
             confirm_expire=confirm_expire,
-            mes=atual_month,
+            info=filter_information,
             error=error,
+            opcoes=opcoes,
+            message=not_found_message,
         )
 
     @app.route("/add/", methods=["GET", "POST"])
