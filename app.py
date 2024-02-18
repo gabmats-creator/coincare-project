@@ -672,7 +672,7 @@ def create_app():
                     {"$set": {"reset_token": token}},
                 )
                 msg = Message("Redefinir Senha - CoinCare", recipients=[user.email])
-                msg.body = f"Para redefinir sua senha, clique no seguinte link: {url_for('reset_password', token=token, _external=True)}"
+                msg.body = f"Olá, {user.name.split()[0]}, Para redefinir sua senha, clique no seguinte link: {url_for('reset_password', token=token, _external=True)}"
                 mail.send(msg)
                 flash(
                     "Um e-mail com instruções para redefinir sua senha foi enviado para o seu endereço de e-mail.",
