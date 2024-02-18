@@ -19,6 +19,7 @@ class User:
     email: str
     income: float
     password: str
+    reset_token: str
     bills: List[str] = field(default_factory=list)
     receipts: List[str] = field(default_factory=list)
 

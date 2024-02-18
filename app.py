@@ -1,3 +1,4 @@
+import random
 from flask import (
     Flask,
     render_template,
@@ -9,8 +10,17 @@ from flask import (
     current_app,
     send_file,
 )
+from flask_bcrypt import Bcrypt
+from flask_mail import Mail, Message
 from dataclasses import asdict
-from forms import BillForm, RegisterForm, LoginForm, ReceiptForm
+from forms import (
+    BillForm,
+    RegisterForm,
+    LoginForm,
+    ReceiptForm,
+    ResetEmailForm,
+    ResetPasswordForm,
+)
 from models import Bill, User, Receipt
 from pymongo import MongoClient
 from passlib.hash import pbkdf2_sha256
@@ -28,6 +38,16 @@ def create_app():
     )
     app.config["MONGODB_URI"] = os.environ.get("MONGODB_URI")
     app.db = MongoClient(app.config["MONGODB_URI"]).get_default_database()
+    app.config["MAIL_SERVER"] = os.environ.get("MAIL_SERVER")
+    app.config["MAIL_PORT"] = os.environ.get("MAIL_PORT")
+    app.config["MAIL_USERNAME"] = os.environ.get("MAIL_USERNAME")
+    app.config["MAIL_PASSWORD"] = os.environ.get("MAIL_PASSWORD")
+    app.config["MAIL_DEFAULT_SENDER"] = os.environ.get("MAIL_DEFAULT_SENDER")
+    app.config["MAIL_USE_TLS"] = True
+    app.config["MAIL_USE_SSL"] = False
+
+    bcrypt = Bcrypt(app)
+    mail = Mail(app)
 
     def login_required(route):
         @functools.wraps(route)
@@ -75,7 +95,6 @@ def create_app():
                 return []
             case "Este ano":
                 atual_year = datetime.now().year
-                print("ano atual===", atual_year)
                 regex_pattern = re.compile(rf"\b{atual_year}\b")
                 return [{"mensal": True}, {"insertDate": {"$regex": regex_pattern}}]
             case "Últimos 7 dias":
@@ -306,8 +325,7 @@ def create_app():
             operacao = request.form.get("operacao")
             if operacao == "excluir":
                 current_app.db.users.update_one(
-                    {"_id": session["user_id"]},
-                    {"$pull": {"bills": _id}}
+                    {"_id": session["user_id"]}, {"$pull": {"bills": _id}}
                 )
                 current_app.db.bills.delete_one({"_id": _id})
 
@@ -427,6 +445,7 @@ def create_app():
                     email=form.email.data,
                     income=form.income.data,
                     password=pbkdf2_sha256.hash(form.password.data),
+                    reset_token=None,
                 )
 
                 current_app.db.users.insert_one(asdict(user))
@@ -635,6 +654,67 @@ def create_app():
 
                 return redirect(url_for(".index"))
             flash("Dados de login incorretos", category="danger")
-        return render_template("login.html", title="CoinCare - Login", form=form)
+        return render_template(
+            "login.html", title="CoinCare - Login", form=form,
+        )
+
+    @app.route("/recuperar-conta", methods=["GET", "POST"])
+    def forgot_password():
+        form = ResetEmailForm()
+        if form.validate_on_submit():
+            email = form.email.data
+            user_data = current_app.db.users.find_one({"email": email})
+            if user_data:
+                user = User(**user_data)
+                token = bcrypt.generate_password_hash(str(uuid.uuid4())).decode("utf-8")
+                current_app.db.users.update_one(
+                    {"_id": user._id},
+                    {"$set": {"reset_token": token}},
+                )
+                msg = Message("Redefinir Senha - CoinCare", recipients=[user.email])
+                msg.body = f"Para redefinir sua senha, clique no seguinte link: {url_for('reset_password', token=token, _external=True)}"
+                mail.send(msg)
+                flash(
+                    "Um e-mail com instruções para redefinir sua senha foi enviado para o seu endereço de e-mail.",
+                    "info",
+                )
+                return redirect(url_for(".login"))
+            else:
+                flash("E-mail não registrado", "danger")
+        return render_template(
+            "forgot_password.html",
+            title="CoinCare - Recuperação de conta",
+            form=form,
+        )
+
+    @app.route("/redefinir-senha/<token>", methods=["GET", "POST"])
+    def reset_password(token):
+        user_data = current_app.db.users.find_one({"reset_token": token})
+
+        form = ResetPasswordForm()
+
+        if user_data:
+            user = User(**user_data)
+            if form.validate_on_submit():
+                new_password = pbkdf2_sha256.hash(form.password.data)
+                current_app.db.users.update_one(
+                    {"_id": user._id},
+                    {"$set": {"reset_token": None, "password": new_password}},
+                )
+                flash(
+                    "Sua senha foi redefinida! Agora você pode fazer login com a nova senha.",
+                    "success",
+                )
+                return redirect(url_for("login"))
+
+            return render_template(
+                "reset_password.html",
+                title="CoinCare - Informe a Senha",
+                form=form,
+                token=token,
+            )
+        else:
+            flash("Token inválido ou expirado.", "danger")
+            return redirect(url_for(".forgot_password"))
 
     return app

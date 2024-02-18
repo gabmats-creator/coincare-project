@@ -3,30 +3,35 @@
 {% extends "layout.html" %}
 
 {% block head_content %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/forms.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/forms.css') }}">
 {% endblock %}
 
 {% block main_content %}
-    <form name="login" method="post" novalidate class="form">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% for category, message in messages %}
-                <span class="form__flash form__flash--{{ category }}">{{ message }}</span>
-            {% endfor %}
-        {% endwith %}
+<form name="login" method="post" novalidate class="form">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+    <span class="form__flash--{{ category }}">{{ message }}</span>
+    {% endfor %}
+    {% endwith %}
 
 
-        <div class="form__container">
-            {{ form.hidden_tag() }}
-            {{ render_text_field(form.email, placeholder="E-mail") }}
-            {{ render_text_field(form.password, placeholder="Senha") }}
+    <div class="form__container">
+        {{ form.hidden_tag() }}
+        {{ render_text_field(form.email, placeholder="E-mail") }}
+        {{ render_text_field(form.password, placeholder="Senha") }}
 
+        <div class="form__container--info">
             <span class="form__small">
                 Não possui uma conta? <a href="{{ url_for('register') }}" class="form__link">Registrar</a>
             </span>
-
-            <div>
-                {{ form.submit(class_="button button--form") }}
-            </div>
+            <span class="form__small">
+                <a href="{{ url_for('forgot_password') }}" class="form__link">Esqueceu sua senha?<a>
+            </span>
         </div>
-    </form>
+
+        <div>
+            {{ form.submit(class_="button button--form") }}
+        </div>
+    </div>
+</form>
 {% endblock %}

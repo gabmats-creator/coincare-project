@@ -72,6 +72,13 @@ class LoginForm(FlaskForm):
     )
     submit = SubmitField("Fazer login")
 
+class ResetEmailForm(FlaskForm):
+    email = StringField(
+        "E-mail",
+        validators=[InputRequired(message="Esse campo é obrigatório"), Email()],
+    )
+    submit = SubmitField("Verificar e-mail")
+
 
 class ReceiptForm(FlaskForm):
     receipt_name = StringField(
@@ -84,3 +91,13 @@ class ReceiptForm(FlaskForm):
 
     submit = SubmitField("Confirmar", render_kw={"value": "Confirmar"})
     cancel = SubmitField("Cancelar", render_kw={"value": "Cancelar"})
+
+class ResetPasswordForm(FlaskForm):
+    password = PasswordField(
+        "Senha",
+        validators=[
+            InputRequired(message="Esse campo é obrigatório"),
+            Length(min=4, max=20, message="Sua senha deve ter entre 4 e 20 caracteres"),
+        ],
+    )
+    submit = SubmitField("Confirmar")
