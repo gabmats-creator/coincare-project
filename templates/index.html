@@ -1,5 +1,7 @@
 {% from "macros/fields.html" import render_text_field %}
 {% from "macros/svgs.html" import bill, list %}
+{% from "macros/svgs.html" import allbills, list %}
+{% from "macros/svgs.html" import extra, list %}
 
 {% extends "layout.html" %}
 
@@ -26,13 +28,13 @@
                         href="{{ url_for('bills_to_pay') }}" 
                         class="nav__link pb-4 bill__icon"
                     >
-                        <span class="col-2">{{ list("list") }}</span><span class="nav__item col-10">Todas as Contas</span>
+                        <span class="col-2">{{ allbills("allbills") }}</span><span class="nav__item col-10">Todas as Contas</span>
                     </a>
                     <a
                         href="{{ url_for('receipts') }}" 
                         class="nav__link pb-4 bill__icon"
                     >
-                        <span class="col-2">{{ list("list") }}</span><span class="nav__item col-10">Outras rendas</span>
+                        <span class="col-2">{{ extra("extra") }}</span><span class="nav__item col-10">Outras rendas</span>
                     </a>
                 </div>
             </div>
