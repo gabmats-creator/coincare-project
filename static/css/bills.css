@@ -59,6 +59,18 @@ body {
     font-size: 1rem;
 }
 
+input[type="text"],
+input[type="email"],
+input[type="float"],
+input[type="date"],
+select {
+    width: 15%; 
+    padding: 7px; 
+    border-radius: 5px; 
+    border: 1px solid #ccc; 
+    box-sizing: border-box; 
+}
+
 .bill__edit {
     display: flex;
     text-decoration: none;
@@ -131,6 +143,12 @@ body {
     height: 100%;
     background-color: rgba(0, 0, 0, 0.7);
     z-index: 999;
+}
+
+#escolhaOpcao {
+    width: 100%; 
+    padding: 0.5rem; 
+    box-sizing: border-box;
 }
 
 /* Estilo para o conteúdo do popup */
