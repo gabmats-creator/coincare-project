@@ -611,7 +611,7 @@ def create_app():
 
                 if request.form.get("income"):
                     income = validate_float(request.form["income"])
-                    if isinstance(income, float) == float:
+                    if isinstance(income, float):
                         current_app.db.users.update_one(
                             {"_id": _id},
                             {"$set": {"income": income}},
