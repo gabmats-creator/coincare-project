@@ -1,8 +1,32 @@
+body {
+    background-color: var(--background-color);
+    color: var(--text-dark);
+}
+
+.container {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.header {
+    background-color: var(--background-color);
+}
+
+.nav__link .bill__icon:hover {
+    color: var(--item-colour);
+}
+
+.nav__link:hover {
+    color: var(--item-colour);
+}
+
 .table {
     max-width: 50rem;
     width: 100%;
     margin: 0 auto;
     border-spacing: 0;
+    color: var(--text-dark);
 }
 
 .table__cell {
@@ -39,32 +63,14 @@
 input[type="text"],
 input[type="email"],
 input[type="float"] {
-    width: 20%; 
-    padding: 7px; 
-    border-radius: 5px; 
-    border: 1px solid #ccc; 
-    box-sizing: border-box; 
+    width: 20%;
+    padding: 7px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
 }
 
-.bill__edit {
-    display: flex;
-    text-decoration: none;
-    align-items: center;
-    margin-left: 1rem;
-    color: inherit;
-}
-
-.bill__edit:hover {
-    text-decoration: underline;
-    color: var(--item-colour);
-}
-
-.pencil {
-    width: 2em;
-    height: 3em;
-    margin-left: 3px;
-}
-
+.bill__edit,
 .bill__delete {
     display: flex;
     text-decoration: none;
@@ -73,6 +79,7 @@ input[type="float"] {
     color: inherit;
 }
 
+.bill__edit:hover,
 .bill__delete:hover {
     text-decoration: underline;
     color: var(--item-colour);
@@ -83,8 +90,8 @@ input[type="float"] {
     bottom: 4rem;
     right: 2rem;
     display: flex;
-    height: 5rem;
-    width: 5rem;
+    height: 4rem;
+    width: 4rem;
     border: var(--border);
     border-radius: 50%;
     color: var(--text-dark);
@@ -123,15 +130,14 @@ input[type="float"] {
     z-index: 999;
 }
 
-/* Estilo para o conteúdo do popup */
 .popup {
     display: block;
-    justify-content: center; 
-    align-items: center; 
+    justify-content: center;
+    align-items: center;
     position: fixed;
     top: 50%;
-    left: 50%; 
-    transform: translate(-50%, -50%); 
+    left: 50%;
+    transform: translate(-50%, -50%);
     background-color: var(--background-color);
     color: var(--text-dark);
     border: var(--border-1px);
@@ -149,11 +155,11 @@ button {
     border-radius: 5px;
     width: 15rem;
     text-align: center;
-    text-decoration: none; 
+    text-decoration: none;
     display: inline-block;
-    cursor: pointer; 
+    cursor: pointer;
 }
-  
+
 button:hover {
     color: var(--text-dark);
     background-color: var(--background-color);
@@ -172,10 +178,9 @@ button:hover {
     }
 }
 
-/* Small devices (landscape phones, 767.98px and up) */
 @media (max-width: 767.98px) {
     .col-lg-3 {
-        margin-bottom: 10px; 
+        margin-bottom: 10px;
         margin-top: 25px;
     }
 
@@ -188,13 +193,13 @@ button:hover {
     input {
         width: 100%;
     }
-    
+
     button {
         padding: 10px 20px;
         margin: 5px 0;
         width: 100%;
-		display: flex;
-		justify-content: center;
+        display: flex;
+        justify-content: center;
     }
 
     .container {
@@ -206,26 +211,23 @@ button:hover {
     }
 }
 
-/* Medium devices (tablets, 768px and up)*/
 @media (min-width: 768px) and (max-width: 991.98px) {
     .col-lg-3 {
-        margin-bottom: 10px; 
+        margin-bottom: 10px;
         margin-top: 25px;
     }
 }
 
-/* Large devices (small desktops, 992px and up)*/
 @media (min-width: 992px) and (max-width: 1599.98px) {
     .col-lg-3 {
-        border-right: 1px solid #ccc; 
+        border-right: 1px solid #ccc;
         margin-right: 75px;
     }
 }
 
-/* Extra large devices (large desktops, 1600px and up)*/
 @media (min-width: 1600px) {
     .col-lg-3 {
-        border-right: 1px solid #ccc; 
+        border-right: 1px solid #ccc;
         margin-right: 75px;
     }
 }
