@@ -92,7 +92,7 @@ def create_app():
             return []
         elif options == "Este ano":
             atual_year = datetime.now().year
-            regex_pattern = re.compile(rf"\b{atual_year}\b")
+            regex_pattern = re.compile(r"\b{}\b".format(atual_year))
             return [{"mensal": True}, {"insertDate": {"$regex": regex_pattern}}]
         elif options == "Últimos 7 dias":
             first_date = datetime.now() - timedelta(days=7)
