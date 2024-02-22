@@ -1,4 +1,4 @@
-import random
+# -*- coding: utf-8 -*-
 from flask import (
     Flask,
     render_template,
@@ -8,7 +8,6 @@ from flask import (
     redirect,
     flash,
     current_app,
-    send_file,
 )
 from flask_bcrypt import Bcrypt
 from flask_mail import Mail, Message
