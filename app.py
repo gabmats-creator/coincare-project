@@ -91,11 +91,11 @@ def create_app():
     def get_conditionals(options):
         if options == "Qualquer período":
             return []
-        if options == "Este ano":
+        elif options == "Este ano":
             atual_year = datetime.now().year
             regex_pattern = re.compile(rf"\b{atual_year}\b")
             return [{"mensal": True}, {"insertDate": {"$regex": regex_pattern}}]
-        if options == "Últimos 7 dias":
+        elif options == "Últimos 7 dias":
             first_date = datetime.now() - timedelta(days=7)
             first_date = first_date.strftime("%d/%m/%Y %H:%M:%S")
             return {"$gte": first_date}
