@@ -4,14 +4,11 @@
 {% extends "layout.html" %}
 
 {% block head_content %}
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
     <link rel="stylesheet" href="{{ url_for('static', filename='css/user.css') }}">
 {% endblock %}
 
 {% block main_content %}
-    <h1>Dados cadastrais</h1>
+    <h1 class="pt-5">Dados cadastrais</h1>
     <table class="table text-center">
         <thead>
             <th class="table__cell table__cell--header">Nome</th>
