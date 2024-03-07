@@ -17,6 +17,12 @@ body {
     color: var(--item-colour);
 }
 
+.pencil {
+    width: 2em;
+    height: 2em;
+    margin-left: 3px;
+}
+
 .nav__link:hover {
     color: var(--item-colour);
 }
@@ -59,6 +65,8 @@ body {
     text-align: center;
     font-size: 1rem;
 }
+
+
 
 input[type="text"],
 input[type="email"],
