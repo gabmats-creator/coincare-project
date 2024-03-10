@@ -1,3 +1,4 @@
+import locale
 import random
 from flask import (
     Flask,
@@ -142,11 +143,11 @@ def create_app():
             return "Erro: Certifique-se de inserir um número válido."
 
     def formata_reais(valor):
-        valor_formatado = f"R$ {float(valor):.2f}"
-        valor_formatado = re.sub(re.escape("."), ",", valor_formatado)
-        return re.sub(r"(\d)(?=(\d{3})+(?!\d))", r"\1.", valor_formatado)
+        locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
+        formatted_money = locale.currency(valor, grouping=True)
+        return formatted_money
 
-    def calc_free_value(user):
+    def calc_free_value(user, rendas):
         cond1 = {"mensal": True}
         cond2 = {
             "insertMonth": get_month_name(datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
@@ -154,27 +155,16 @@ def create_app():
         mensal_bills_data_value = current_app.db.bills.find(
             {"_id": {"$in": user.bills}, "$or": [cond1, cond2]}
         )
-        mensal_receipts = current_app.db.receipts.find(
-            {
-                "_id": {"$in": user.receipts},
-                "insertMonth": get_month_name(
-                    datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-                ),
-            }
-        )
+
         custo_contas = 0
         for conta in mensal_bills_data_value:
             custo_contas += float(conta["billValue"])
 
-        rendas = 0
-        for renda in mensal_receipts:
-            rendas += float(renda["receiptValue"])
-
-        income = user.income
-        free_value = (income + rendas) - custo_contas
+        free_value = rendas - custo_contas
         negative = True if free_value < 0 else None
         if free_value < 0:
             free_value *= -1
+
         return formata_reais(free_value), negative
 
     @app.route("/")
@@ -204,11 +194,25 @@ def create_app():
             .sort("insertDate", -1)
             .limit(3)
         )
-        income_value = formata_reais(user.income)
-        free_value, negative = calc_free_value(user)
+
+        income_data = (
+            current_app.db.receipts.find(
+                {"_id": {"$in": user.receipts}, "$or": [cond2]}
+            )
+            .sort("insertDate", -1)
+            .limit(3)
+        )
+
+        income = [Receipt(**receipt) for receipt in income_data]
+        income_value = user.income
+        for renda in income:
+            income_value += float(renda.receiptValue)
+        free_value, negative = calc_free_value(user, income_value)
+        income_value = formata_reais(income_value)
         bill = [Bill(**bill) for bill in bills_data]
         for conta in bill:
             conta.billValue = formata_reais(conta.billValue)
+
         atual_month = get_month_name(datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
 
         return render_template(
