@@ -9,7 +9,6 @@ from flask import (
     redirect,
     flash,
     current_app,
-    send_file,
 )
 from flask_bcrypt import Bcrypt
 from flask_mail import Mail, Message
@@ -62,7 +61,7 @@ def create_app():
 
     def get_expire_date(day=None, date=None):
         if day and int(day) < 10:
-            day = f"0{day}"
+            day = "0{}".format(day)
 
         if date:
             day = date.split("/")[0]
@@ -74,43 +73,41 @@ def create_app():
         return modified_date
 
     def get_filter_information(options):
-        match options:
-            case "Qualquer período":
-                return "Todas as contas cadastradas"
-            case "Este ano":
-                atual_year = datetime.now().year
-                return f"Todas as contas de {atual_year}"
-            case "Últimos 7 dias":
-                first_date = datetime.now() - timedelta(days=7)
-                first_date = first_date.strftime("%d/%m/%Y")
-                return f"Todas as contas desde {first_date}"
-            case _:
-                atual_month = get_month_name(
-                    datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-                )
-                return f"Todas as contas de {atual_month}"
+        if options == "Qualquer período":
+            return "Todas as contas cadastradas"
+        elif options == "Este ano":
+            atual_year = datetime.now().year
+            return "Todas as contas de {}".format(atual_year)
+        elif options == "Últimos 7 dias":
+            first_date = datetime.now() - timedelta(days=7)
+            first_date = first_date.strftime("%d/%m/%Y")
+            return "Todas as contas desde {}".format(first_date)
+        else:
+            atual_month = get_month_name(
+                datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+            )
+            return "Todas as contas de {}".format(atual_month)
 
     def get_conditionals(options):
-        match options:
-            case "Qualquer período":
-                return []
-            case "Este ano":
-                atual_year = datetime.now().year
-                regex_pattern = re.compile(rf"\b{atual_year}\b")
-                return [{"mensal": True}, {"insertDate": {"$regex": regex_pattern}}]
-            case "Últimos 7 dias":
-                first_date = datetime.now() - timedelta(days=7)
-                first_date = first_date.strftime("%d/%m/%Y %H:%M:%S")
-                return {"$gte": first_date}
-            case _:
-                return [
-                    {"mensal": True},
-                    {
-                        "insertMonth": get_month_name(
-                            datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-                        )
-                    },
-                ]
+        if options == "Qualquer período":
+            return []
+        elif options == "Este ano":
+            atual_year = datetime.now().year
+            regex_pattern = re.compile(r"\b{}\b".format(atual_year))
+            return [{"mensal": True}, {"insertDate": {"$regex": regex_pattern}}]
+        elif options == "Últimos 7 dias":
+            first_date = datetime.now() - timedelta(days=7)
+            first_date = first_date.strftime("%d/%m/%Y %H:%M:%S")
+            return {"$gte": first_date}
+        else:
+            return [
+                {"mensal": True},
+                {
+                    "insertMonth": get_month_name(
+                        datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+                    )
+                },
+            ]
 
     def get_month_name(date):
         fields = date.split("/")
@@ -676,7 +673,7 @@ def create_app():
                     {"$set": {"reset_token": token}},
                 )
                 msg = Message("Redefinir Senha - CoinCare", recipients=[user.email])
-                msg.body = f"Olá, {user.name.split()[0]}, Para redefinir sua senha, clique no seguinte link: {url_for('reset_password', token=token, _external=True)}"
+                msg.body = "Olá, {}, Para redefinir sua senha, clique no seguinte link: {}".format(user.name.split()[0], url_for('reset_password', token=token, _external=True))
                 mail.send(msg)
                 flash(
                     "Um e-mail com instruções para redefinir sua senha foi enviado para o seu endereço de e-mail.",
