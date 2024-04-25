@@ -1,5 +1,5 @@
+# -*- coding: utf-8 -*-
 import locale
-import random
 from flask import (
     Flask,
     render_template,
@@ -83,9 +83,7 @@ def create_app():
             first_date = first_date.strftime("%d/%m/%Y")
             return "Todas as contas desde {}".format(first_date)
         else:
-            atual_month = get_month_name(
-                datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-            )
+            atual_month = get_month_name(datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
             return "Todas as contas de {}".format(atual_month)
 
     def get_conditionals(options):
@@ -140,7 +138,7 @@ def create_app():
             return "Erro: Certifique-se de inserir um número válido."
 
     def formata_reais(valor):
-        locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
+        locale.setlocale(locale.LC_ALL, "pt_BR.UTF-8")
         formatted_money = locale.currency(valor, grouping=True)
         return formatted_money
 
@@ -173,7 +171,17 @@ def create_app():
         if session.get("email"):
             del session["email"]
 
-        return render_template("home.html")
+        access = current_app.db.access.find_one({"_id": 1})
+
+        if not session.get("page_loaded"):
+            current_app.db.access.update_one(
+                {"_id": 1},
+                {"$set": {"general_access": access["general_access"] + 1}},
+            )
+            session["page_loaded"] = True
+
+        updated_access = current_app.db.access.find_one({"_id": 1})
+        return render_template("home.html", general_access=updated_access["general_access"], logged_access=updated_access["logged_access"])
 
     @app.route("/home")
     @login_required
@@ -650,13 +658,26 @@ def create_app():
             user = User(**user_data)
 
             if user and pbkdf2_sha256.verify(form.password.data, user.password):
+                if not session.get("logged"):
+                    print("caiu aqui")
+                    access = current_app.db.access.find_one({"_id": 1})
+                    current_app.db.access.update_one(
+                        {"_id": 1},
+                        {"$set": {"logged_access": access["logged_access"] + 1}},
+                    )
+                    session["logged"] = True
+                else:
+                    print("não caiu aqui", session["logged"])
+                
                 session["user_id"] = user._id
                 session["email"] = user.email
-
                 return redirect(url_for(".index"))
             flash("Dados de login incorretos", category="danger")
+
         return render_template(
-            "login.html", title="CoinCare - Login", form=form,
+            "login.html",
+            title="CoinCare - Login",
+            form=form,
         )
 
     @app.route("/recuperar-conta", methods=["GET", "POST"])
@@ -673,7 +694,10 @@ def create_app():
                     {"$set": {"reset_token": token}},
                 )
                 msg = Message("Redefinir Senha - CoinCare", recipients=[user.email])
-                msg.body = "Olá, {}, Para redefinir sua senha, clique no seguinte link: {}".format(user.name.split()[0], url_for('reset_password', token=token, _external=True))
+                msg.body = "Olá, {}, Para redefinir sua senha, clique no seguinte link: {}".format(
+                    user.name.split()[0],
+                    url_for("reset_password", token=token, _external=True),
+                )
                 mail.send(msg)
                 flash(
                     "Um e-mail com instruções para redefinir sua senha foi enviado para o seu endereço de e-mail.",
