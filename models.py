@@ -37,4 +37,3 @@ class Access:
     _id: str
     logged_access: int
     general_access: int
-    current_session: str
