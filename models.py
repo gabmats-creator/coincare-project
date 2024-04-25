@@ -31,3 +31,10 @@ class Receipt:
     insertDate: str
     description: str
     insertMonth: str
+
+@dataclass
+class Access:
+    _id: str
+    logged_access: int
+    general_access: int
+    current_session: str
