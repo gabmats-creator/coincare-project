@@ -59,6 +59,18 @@ body {
     font-size: 1rem;
 }
 
+input[type="text"],
+input[type="email"],
+input[type="float"],
+input[type="date"],
+select {
+    width: 100%; 
+    padding: 7px; 
+    border-radius: 5px; 
+    border: 1px solid #ccc; 
+    box-sizing: border-box; 
+}
+
 .bill__edit {
     display: flex;
     text-decoration: none;
@@ -133,6 +145,16 @@ body {
     z-index: 999;
 }
 
+#escolhaOpcao {
+    width: 100%; 
+    padding: 0.5rem; 
+    box-sizing: border-box;
+}
+
+.table__cell {
+    text-align: center;
+}
+
 /* Estilo para o conteúdo do popup */
 .popup {
     display: block;
@@ -144,6 +166,10 @@ body {
     width: 95%;
     z-index: 1000;
     padding: 2.5rem 1.5rem 1.5rem 1.5rem;
+    top: 50%; 
+    left: 50%; 
+    transform: translate(-50%, -50%); 
+    text-align: center; 
 }
 
 button {
@@ -185,7 +211,7 @@ button:hover {
     }
 
     .popup {
-        width: 75%;
+        width: 90%;
         justify-content: center;
         text-align: center;
     }
