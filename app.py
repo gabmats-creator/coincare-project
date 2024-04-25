@@ -138,9 +138,9 @@ def create_app():
             return "Erro: Certifique-se de inserir um número válido."
 
     def formata_reais(valor):
-        locale.setlocale(locale.LC_ALL, "pt_BR.UTF-8")
-        formatted_money = locale.currency(valor, grouping=True)
-        return formatted_money
+        valor_formatado = "R$ {:.2f}".format(float(valor))
+        valor_formatado = re.sub(re.escape("."), ",", valor_formatado)
+        return re.sub(r"(\d)(?=(\d{3})+(?!\d))", r"\1.", valor_formatado)
 
     def calc_free_value(user, rendas):
         cond1 = {"mensal": True}
