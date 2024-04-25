@@ -659,15 +659,12 @@ def create_app():
 
             if user and pbkdf2_sha256.verify(form.password.data, user.password):
                 if not session.get("logged"):
-                    print("caiu aqui")
                     access = current_app.db.access.find_one({"_id": 1})
                     current_app.db.access.update_one(
                         {"_id": 1},
                         {"$set": {"logged_access": access["logged_access"] + 1}},
                     )
                     session["logged"] = True
-                else:
-                    print("não caiu aqui", session["logged"])
                 
                 session["user_id"] = user._id
                 session["email"] = user.email
