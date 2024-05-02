@@ -61,6 +61,18 @@ h1 {
   
 /* Fim Cards */
 
+/* Contador */
+.counter-section {
+    margin-top: 20px;
+}
+.counter-section .counter {
+    font-size: 28px;
+    margin-bottom: 10px;
+}
+
+/* Fim Contador*/
+
+
 /* Small devices (landscape phones, 767.98px and up) */
 @media (max-width: 767.98px) {
     .home {
@@ -96,6 +108,14 @@ h1 {
 		display: flex;
 		justify-content: center;
 	}
+
+    .counter-section .counter {
+        font-size: 20px;
+    }
+
+    .imagem {
+        width: 80%;
+    }
 }
 
 /* Medium devices (tablets, 768px and up)*/
@@ -125,11 +145,21 @@ h1 {
         font-size: 1.3rem;
         margin-bottom: 40px;
     }
+
+    .counter-section .counter {
+        font-size: 20px;
+    }
+
+    .imagem {
+        width: 80%;
+    }
 }
 
 /* Large devices (small desktops, 992px and up)*/
 @media (min-width: 992px) and (max-width: 1599.98px) {
-
+    .counter-section .counter {
+        font-size: 25px;
+    }
 }
 
 /* Extra large devices (large desktops, 1600px and up)*/
