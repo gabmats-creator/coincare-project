@@ -42,8 +42,26 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-6 d-none d-lg-block" data-aos="fade-up" data-aos-delay="100">
-                    <img src="{{ url_for('static', filename='image/coincare-home.png') }}" alt="Cofrinho CoinCare" >
+                <div class="col-lg-6 d-lg-block" data-aos="fade-up" data-aos-delay="100">
+                    <img class="imagem" src="{{ url_for('static', filename='image/coincare-home.png') }}" alt="Cofrinho CoinCare">
+                    <div class="container">
+                        <div class="row counter-section">
+                            <div class="col-md-2">
+                            </div>
+                            <div class="col-md-5 text-center">
+                                <div class="counter">
+                                    <span class="badge bg-warning">{{ general_access }}</span> 
+                                    <strong class="ps-2">Visitas!</strong> 
+                                </div>
+                            </div>
+                            <div class="col-md-5 text-center">
+                                <div class="counter">
+                                    <span class="badge bg-warning">{{ logged_access }}</span>
+                                    <strong class="ps-2">Logins!</strong> 
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -168,13 +186,4 @@
         AOS.init();
         });
     </script>
-
-<footer class="footer">
-    <div>
-        <small>Quantidade de acessos à pagina inicial: {{ general_access }}</small>
-    </div>
-    <div>
-        <small>Quantidade de logins no sistema: {{ logged_access }}</small>
-    </div>
-</footer>
 {% endblock %}
