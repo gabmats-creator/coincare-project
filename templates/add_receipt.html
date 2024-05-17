@@ -3,6 +3,8 @@
 {% extends "layout.html" %}
 
 {% block head_content %}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/forms.css') }}">
 {% endblock %}
 
@@ -11,7 +13,7 @@
         <div class="form__container">
             {{ form.hidden_tag() }}
             {{ render_text_field(form.receipt_name, placeholder="Nome da renda") }}
-            {{ render_text_field(form.receipt_value, placeholder="Valor da conta") }}
+            {{ render_text_field(form.receipt_value, placeholder="Valor da conta", id="income_field") }}
             {{ render_text_field(form.description, placeholder="Descrição") }}
 
             <div>
@@ -20,4 +22,9 @@
             </div>
         </div>
     </form>
+    <script>
+        $(document).ready(function(){
+            $('#income_field').mask('000.000.000.000.000,00', {reverse: true});
+        });
+    </script>
 {% endblock %}
