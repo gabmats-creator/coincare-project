@@ -32,7 +32,7 @@ class BillForm(FlaskForm):
             cleaned_value = field.data.replace('.', '').replace(',', '.')
             field.data = float(cleaned_value)
         except ValueError:
-            raise ValidationError('Renda Mensal deve ser um número válido.')
+            raise ValidationError('Valor da conta deve ser um número válido.')
 
 
 class RegisterForm(FlaskForm):
@@ -69,7 +69,7 @@ class RegisterForm(FlaskForm):
             cleaned_value = field.data.replace('.', '').replace(',', '.')
             field.data = float(cleaned_value)
         except ValueError:
-            raise ValidationError('Renda Mensal deve ser um número válido.')
+            raise ValidationError('Renda mensal deve ser um número válido.')
 
 
 class LoginForm(FlaskForm):
@@ -111,7 +111,7 @@ class ReceiptForm(FlaskForm):
             cleaned_value = field.data.replace('.', '').replace(',', '.')
             field.data = float(cleaned_value)
         except ValueError:
-            raise ValidationError('Renda Mensal deve ser um número válido.')
+            raise ValidationError('Valor da renda deve ser um número válido.')
 
 class ResetPasswordForm(FlaskForm):
     password = PasswordField(
