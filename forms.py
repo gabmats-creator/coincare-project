@@ -9,7 +9,7 @@ from wtforms import (
     SelectField,
     TextAreaField,
 )
-from wtforms.validators import InputRequired, NumberRange, Email, Length, EqualTo
+from wtforms.validators import InputRequired, NumberRange, Email, Length, EqualTo, ValidationError
 
 
 class BillForm(FlaskForm):
@@ -17,7 +17,7 @@ class BillForm(FlaskForm):
         "Nome da conta a pagar",
         validators=[InputRequired(message="Esse campo é obrigatório")],
     )
-    bill_value = FloatField(
+    bill_value = StringField(
         "Valor da conta", validators=[InputRequired(message="Esse campo é obrigatório")]
     )
     description = StringField("Descrição")
@@ -26,6 +26,13 @@ class BillForm(FlaskForm):
     frequence = SelectField("Recorrência", choices=opcoes)
     submit = SubmitField("Confirmar", render_kw={"value": "Confirmar"})
     cancel = SubmitField("Cancelar", render_kw={"value": "Cancelar"})
+
+    def validate_bill_value(form, field):
+        try:
+            cleaned_value = field.data.replace('.', '').replace(',', '.')
+            field.data = float(cleaned_value)
+        except ValueError:
+            raise ValidationError('Valor da conta deve ser um número válido.')
 
 
 class RegisterForm(FlaskForm):
@@ -37,7 +44,7 @@ class RegisterForm(FlaskForm):
         "E-mail",
         validators=[InputRequired(message="Esse campo é obrigatório"), Email()],
     )
-    income = FloatField(
+    income = StringField(
         "Renda mensal fixa",
         validators=[InputRequired(message="Esse campo é obrigatório")],
     )
@@ -56,6 +63,13 @@ class RegisterForm(FlaskForm):
         ],
     )
     submit = SubmitField("Registrar")
+
+    def validate_income(form, field):
+        try:
+            cleaned_value = field.data.replace('.', '').replace(',', '.')
+            field.data = float(cleaned_value)
+        except ValueError:
+            raise ValidationError('Renda mensal deve ser um número válido.')
 
 
 class LoginForm(FlaskForm):
@@ -84,13 +98,20 @@ class ReceiptForm(FlaskForm):
     receipt_name = StringField(
         "Nome da renda", validators=[InputRequired(message="Esse campo é obrigatório")]
     )
-    receipt_value = FloatField(
+    receipt_value = StringField(
         "Valor da renda", validators=[InputRequired(message="Esse campo é obrigatório")]
     )
     description = StringField("Descrição")
 
     submit = SubmitField("Confirmar", render_kw={"value": "Confirmar"})
     cancel = SubmitField("Cancelar", render_kw={"value": "Cancelar"})
+
+    def validate_receipt_value(form, field):
+        try:
+            cleaned_value = field.data.replace('.', '').replace(',', '.')
+            field.data = float(cleaned_value)
+        except ValueError:
+            raise ValidationError('Valor da renda deve ser um número válido.')
 
 class ResetPasswordForm(FlaskForm):
     password = PasswordField(

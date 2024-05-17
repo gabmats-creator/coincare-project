@@ -4,6 +4,8 @@
 
 {% block head_content %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/forms.css') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
 {% endblock %}
 
 {% block main_content %}
@@ -19,7 +21,7 @@
             {{ form.hidden_tag() }}
             {{ render_text_field(form.nome, placeholder="Nome completo") }}
             {{ render_text_field(form.email, placeholder="E-mail") }}
-            {{ render_text_field(form.income, placeholder="Renda mensal") }}
+            {{ render_text_field(form.income, placeholder="Renda mensal", id="income_field") }}
             {{ render_text_field(form.password, placeholder="Senha") }}
             {{ render_text_field(form.confirm_password, placeholder="Confirme sua senha") }}
             
@@ -33,4 +35,9 @@
             </div>
         </div>
     </form>
+    <script>
+        $(document).ready(function(){
+            $('#income_field').mask('000.000.000.000.000,00', {reverse: true});
+        });
+    </script>
 {% endblock %}
