@@ -211,7 +211,7 @@ def create_app():
         income = [Receipt(**receipt) for receipt in income_data]
         income_value = user.income
         for renda in income:
-            income_value += float(renda.receiptValue)
+            income_value += validate_float(renda.receiptValue)
         free_value, negative = calc_free_value(user, income_value)
         income_value = formata_reais(income_value)
         bill = [Bill(**bill) for bill in bills_data]
@@ -482,7 +482,7 @@ def create_app():
             receipt = [Receipt(**receipt) for receipt in receipts_data]
             for renda in receipt:
                 renda.receiptValue = (
-                    formata_reais(float(renda.receiptValue))
+                    formata_reais(validate_float(renda.receiptValue))
                     if renda.receiptValue
                     else renda.receiptValue
                 )
